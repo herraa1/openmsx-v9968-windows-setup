@@ -11,3 +11,8 @@
 *.pptx binary
 
 *.pdf binary
+
+# Preserve OBJ hashes and generated-asset byte comparisons.
+*.obj text eol=lf
+demos/v9968-tech-demo/assets/*.json text eol=lf
+demos/v9968-tech-demo/assets/bank-layout.h text eol=lf
