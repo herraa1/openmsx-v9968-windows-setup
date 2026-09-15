@@ -2,13 +2,13 @@
 
 # openmsx-v9968-windows-setup
 
-Unofficial Windows setup helpers for the V9968-enabled openMSX fork. Version **0.7.1**. This is an independent helper project, not the official openMSX or V9968 project.
+Unofficial Windows setup helpers for the V9968-enabled openMSX fork. Version **0.7.2**. This is an independent helper project, not the official openMSX or V9968 project.
 
 V9968 is an MSX video display processor (VDP). The fork emulates it in place of a machine's built-in VDP. These helpers build a ready-to-run environment for it: they download tested emulator versions, verify hashes, and run a V9968 identification test. We make an environment where you can run `V9968 TECH DEMO` right away.
 
-| Scene 3 optimization: 8.23 → 12.33 fps (1.50×) in openMSX, FS-A1GT / R800 / FULL. Before: top; after: bottom. |
+| V9968 TECH DEMO — Scene 3: an animated 3D scene with water distortion. |
 | --- |
-| ![V9968 Scene 3 — before and after optimization](demos/scene3-benchmark/images/optimization-comparison.gif) |
+| ![V9968 TECH DEMO — Scene 3 water effect](demos/v9968-tech-demo/water-preview.gif) |
 
 [The SCENE3 benchmark](demos/scene3-benchmark/README.md) lets you switch command speed and palette with F and compare against a standard V9958.
 
@@ -22,7 +22,7 @@ V9968 is an MSX video display processor (VDP). The fork emulates it in place of 
 
 ## Quick start
 
-1. Download `openmsx-v9968-windows-setup-0.7.1.zip` from **Assets** on [GitHub Releases](https://github.com/renatus-xxxx/openmsx-v9968-windows-setup/releases). Extract the **whole ZIP** into a new writable folder outside OneDrive or any other synced folder, for example `C:\MSX`. Do not run BAT files inside a ZIP viewer.
+1. Download `openmsx-v9968-windows-setup-0.7.2.zip` from **Assets** on [GitHub Releases](https://github.com/renatus-xxxx/openmsx-v9968-windows-setup/releases). Extract the **whole ZIP** into a new writable folder outside OneDrive or any other synced folder, for example `C:\MSX`. Do not run BAT files inside a ZIP viewer.
 2. Run `setup-cbios-v9968.bat`, or drag your FS-A1GT BIOS folder onto `setup-fsa1gt-v9968.bat`.
 3. Start the demo:
    - FS-A1GT / R800: `launch-v9968-tech-demo-fsa1gt.bat`

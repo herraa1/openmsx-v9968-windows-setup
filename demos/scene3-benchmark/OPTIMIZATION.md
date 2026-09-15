@@ -2,7 +2,9 @@
 
 # Exact Scene 3 optimization
 
-Measured 2026-09-14. Included in release 0.7.1. The published reference ROM, rom.json and results.json are unchanged. The optimized ROM is `SCENE3-BENCHMARK-OPTIMIZED.rom`; its identity is in [rom-optimized.json](rom-optimized.json) and all measured frame/tick counts are in [results-optimized.json](results-optimized.json).
+Measured 2026-09-14. Included in release 0.7.1.
+> **Historical geometry note:** all FPS, bbox and mesh-command counts in this document were measured on 2026-09-14 with the then-default octahedron. The current demo generator accepts arbitrary OBJ input and defaults to `assets/octahedron.obj`; rebuilding the benchmark with that OBJ changes the geometry workload, so do not compare newly rebuilt OBJ results directly to the numbers below.
+ The published reference ROM, rom.json and results.json are unchanged. The optimized ROM is `SCENE3-BENCHMARK-OPTIMIZED.rom`; its identity is in [rom-optimized.json](rom-optimized.json) and all measured frame/tick counts are in [results-optimized.json](results-optimized.json).
 
 ## Measurement method
 

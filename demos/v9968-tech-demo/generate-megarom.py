@@ -2,12 +2,13 @@
 Python 3 + Pillow. No network or copied OpenGL code.
 """
 from pathlib import Path
-import math, struct, json, hashlib
-from PIL import Image, ImageDraw
+import argparse, math, struct, json, hashlib
+from PIL import Image
 
 P=Path(__file__).resolve().parent
 OUT=P/'assets'
 BANK=16384
+DEFAULT_MESH_RADIUS=88.0
 banks=[bytes(BANK)]  # bank 0 is replaced by the linked C program
 layout={}
 def add(name,data,stride=0):
@@ -33,6 +34,143 @@ def proj(x,y,z,a,tilt,scale=160):
     xx=x*math.cos(a)+z*math.sin(a);zz=z*math.cos(a)-x*math.sin(a)
     yy=y*math.cos(tilt)-zz*math.sin(tilt);d=y*math.sin(tilt)+zz*math.cos(tilt)+256
     return round(128+xx*scale/d),round(96+yy*scale/d),d
+
+def resolve_mesh_obj(value):
+    path=Path(value)
+    if not path.is_absolute():
+        # Command-line paths are normally relative to the caller. If that does
+        # not exist, also accept a path relative to this demo directory so
+        # build scripts can use "assets/foo.obj" from any current directory.
+        caller=Path.cwd()/path
+        path=caller if caller.exists() else P/path
+    path=path.resolve()
+    if not path.is_file():raise FileNotFoundError(f'Mesh OBJ not found: {path}')
+    return path
+
+def obj_lines(path):
+    """Join backslash continuations, reporting the first physical line."""
+    pending=[];start=0
+    for lineno,raw in enumerate(path.read_text(encoding='utf-8-sig',errors='replace').splitlines(),1):
+        line=raw.split('#',1)[0].strip()
+        if not pending:start=lineno
+        continued=line.endswith(chr(92))
+        pending.append(line[:-1] if continued else line)
+        if continued:continue
+        yield start,' '.join(pending)
+        pending=[]
+    if pending:raise ValueError(f'{path}:{start}: unfinished line continuation')
+
+def load_obj(path):
+    """Read geometry-only Wavefront OBJ data and triangulate polygon faces.
+
+    Supported face tokens are v, v/vt, v//vn and v/vt/vn, including negative
+    vertex indices. Texture coordinates, supplied normals, materials, groups
+    and smoothing directives are intentionally ignored: this demo computes its
+    own flat lighting and renders only indexed geometry.
+    """
+    vertices=[];faces=[];triangles=[]
+    for lineno,line in obj_lines(path):
+        if not line:continue
+        fields=line.split();kind=fields[0]
+        if kind=='v':
+            if len(fields)<4:raise ValueError(f'{path}:{lineno}: vertex needs x y z')
+            values=tuple(float(v) for v in fields[1:4])
+            if not all(math.isfinite(c) for c in values):
+                raise ValueError(f'{path}:{lineno}: vertex must be finite')
+            vertices.append(values)
+        elif kind=='f':
+            if len(fields)<4:raise ValueError(f'{path}:{lineno}: face needs at least three vertices')
+            face=[]
+            for token in fields[1:]:
+                head=token.split('/',1)[0]
+                if not head:raise ValueError(f'{path}:{lineno}: face token has no vertex index: {token!r}')
+                index=int(head)
+                if index==0:raise ValueError(f'{path}:{lineno}: OBJ indices are 1-based; zero is invalid')
+                index=index-1 if index>0 else len(vertices)+index
+                if not 0<=index<len(vertices):raise ValueError(f'{path}:{lineno}: vertex index out of range: {token!r}')
+                face.append(index)
+            # OBJ polygons are commonly convex; a fan is sufficient for the
+            # low-poly assets this generator targets and also handles quads.
+            face_id=len(faces);faces.append(tuple(face))
+            for i in range(1,len(face)-1):triangles.append((face[0],face[i],face[i+1],face_id))
+    if not vertices:raise ValueError(f'{path}: no vertices found')
+    if not triangles:raise ValueError(f'{path}: no faces found')
+    return vertices,faces,triangles
+
+def normalize_obj(vertices,target_radius=DEFAULT_MESH_RADIUS):
+    mins=[min(v[i] for v in vertices) for i in range(3)]
+    maxs=[max(v[i] for v in vertices) for i in range(3)]
+    center=[(mins[i]+maxs[i])*.5 for i in range(3)]
+    centered=[tuple(v[i]-center[i] for i in range(3)) for v in vertices]
+    radius=max(math.sqrt(sum(c*c for c in v)) for v in centered)
+    if radius<=1e-12:raise ValueError('Mesh OBJ collapses to a single point')
+    scale=target_radius/radius
+    return [tuple(c*scale for c in v) for v in centered]
+
+def transform_mesh_vertex(vertex,a,tilt,scale,xdrift):
+    x,y,z=vertex
+    ca,sa=math.cos(a),math.sin(a);ct,st=math.cos(tilt),math.sin(tilt)
+    xx=x*ca+z*sa;zz=z*ca-x*sa
+    yy=y*ct-zz*st;depth=y*st+zz*ct+256.0
+    if depth<=1.0:return None
+    return (128.0+xdrift+xx*scale/depth,96.0+yy*scale/depth,1.0/depth,xx,yy,depth-256.0)
+
+def mesh_shade(a,b,c):
+    # Camera-space flat normal. abs(dot) intentionally makes imported geometry
+    # two-sided: OBJ winding conventions vary and this demo has no material or
+    # back-face state. The ordinary mesh palette owns indices 8..12.
+    ux=b[3]-a[3];uy=b[4]-a[4];uz=b[5]-a[5]
+    vx=c[3]-a[3];vy=c[4]-a[4];vz=c[5]-a[5]
+    nx=uy*vz-uz*vy;ny=uz*vx-ux*vz;nz=ux*vy-uy*vx
+    length=math.sqrt(nx*nx+ny*ny+nz*nz)
+    if length<=1e-12:return 8
+    nx/=length;ny/=length;nz/=length
+    lx,ly,lz=(-0.35,-0.55,-0.76);ll=math.sqrt(lx*lx+ly*ly+lz*lz)
+    intensity=abs((nx*lx+ny*ly+nz*lz)/ll)
+    return 8+2*round(2*max(0.0,min(1.0,intensity)))
+
+def rasterize_obj(vertices,faces,triangles,a,tilt,scale):
+    width,height=256,192;xdrift=round(10*math.sin(a*2))
+    tv=[transform_mesh_vertex(v,a,tilt,scale,xdrift) for v in vertices]
+    pixels=bytearray(width*height);depth=[0.0]*(width*height)
+    def edge(ax,ay,bx,by,px,py):return (px-ax)*(by-ay)-(py-ay)*(bx-ax)
+    face_colours={}
+    for ia,ib,ic,face_id in triangles:
+        va,vb,vc=tv[ia],tv[ib],tv[ic]
+        if va is None or vb is None or vc is None:continue
+        ax,ay=va[0],va[1];bx,by=vb[0],vb[1];cx,cy=vc[0],vc[1]
+        area=edge(ax,ay,bx,by,cx,cy)
+        if abs(area)<1e-9:continue
+        minx=max(0,int(math.floor(min(ax,bx,cx))));maxx=min(width-1,int(math.ceil(max(ax,bx,cx))))
+        miny=max(0,int(math.floor(min(ay,by,cy))));maxy=min(height-1,int(math.ceil(max(ay,by,cy))))
+        if minx>maxx or miny>maxy:continue
+        if face_id not in face_colours:
+            face=faces[face_id]
+            fa,fb,fc=tv[face[0]],tv[face[1]],tv[face[2]]
+            face_colours[face_id]=mesh_shade(fa,fb,fc) if fa and fb and fc else 8
+        colour=face_colours[face_id];positive=area>0
+        for y in range(miny,maxy+1):
+            py=y+.5;base=y*width
+            for x in range(minx,maxx+1):
+                px=x+.5
+                w0=edge(bx,by,cx,cy,px,py);w1=edge(cx,cy,ax,ay,px,py);w2=edge(ax,ay,bx,by,px,py)
+                if positive:
+                    if w0<0 or w1<0 or w2<0:continue
+                elif w0>0 or w1>0 or w2>0:continue
+                inv_depth=(w0*va[2]+w1*vb[2]+w2*vc[2])/area
+                pos=base+x
+                if inv_depth>depth[pos]:depth[pos]=inv_depth;pixels[pos]=colour
+    return Image.frombytes('P',(width,height),bytes(pixels))
+
+parser=argparse.ArgumentParser(description='Generate V9968 MegaROM assets.')
+parser.add_argument('--mesh-obj',default=str(OUT/'octahedron.obj'),help='Wavefront OBJ used by the shared 128-frame MESH asset (default: assets/octahedron.obj)')
+parser.add_argument('--mesh-radius',type=float,default=DEFAULT_MESH_RADIUS,help='Auto-normalized object radius before projection (default: 88)')
+args=parser.parse_args()
+if not 1.0<=args.mesh_radius<=120.0:raise ValueError('--mesh-radius must be between 1 and 120')
+mesh_obj_path=resolve_mesh_obj(args.mesh_obj)
+mesh_vertices_raw,mesh_faces,mesh_triangles=load_obj(mesh_obj_path)
+mesh_vertices=normalize_obj(mesh_vertices_raw,args.mesh_radius)
+mesh_obj_sha256=hashlib.sha256(mesh_obj_path.read_bytes()).hexdigest()
 
 font = json.loads((OUT/'fonts.json').read_text(encoding='utf-8'))['msx8x8']
 add('BACKGROUND',packed(Image.open(OUT/'chamber-256.png').copy()))
@@ -73,20 +211,16 @@ for f in range(256):
     panel+=ints([128-round((112*vx-72*vy)/256),672-round((112*vy+72*vx)/256),vx,vy])
 add('CORE',core,128);add('SHARDS',shards,128);add('ROTATION',panel,8)
 
-# An octahedron with faceted lighting and a drifting viewpoint. It is rasterized
-# into colored spans offline, then the VDP fills those spans during playback.
+# The shared MESH asset is now generated from a Wavefront OBJ. The runtime data
+# format is deliberately unchanged: Scene 1, Scene 3 and Scene 6 all continue
+# to consume the same 128 fixed 4096-byte records with merged LMMV rectangles
+# and a four-byte dirty bounding box at offset 4092.
 mesh=bytearray();span_counts=[];rect_counts=[];bbox_areas=[];restore_areas=[];mesh_reference=[]
-vertices=[(0,-88,0),(0,88,0),(-76,0,0),(0,0,-76),(76,0,0),(0,0,76)]
-faces=[(tip,2+i,2+(i+1)%4) for tip in (0,1) for i in range(4)]
+mesh_preview=None
+MAX_MESH_RECTS=(4092-2)//11
 for f in range(128):
     a=f*T/128;tilt=.48+.42*math.sin(a*2)
-    v=[proj(x,y,z,a,tilt,210+16*math.sin(a)) for x,y,z in vertices]
-    im=Image.new('P',(256,192));draw=ImageDraw.Draw(im)
-    for idx in sorted(range(8),key=lambda i:sum(v[j][2] for j in faces[i]),reverse=True):
-        face=faces[idx];points=[(v[j][0]+round(10*math.sin(a*2)),v[j][1]) for j in face]
-        shade=8+round(4*(.5+.5*math.sin(a+idx*1.7)))
-        draw.polygon(points,fill=shade)
-        # Filled faces; avoiding per-pixel outline runs keeps the VDP stream compact.
+    im=rasterize_obj(mesh_vertices,mesh_faces,mesh_triangles,a,tilt,210+16*math.sin(a))
     runs=bytearray()
     for y in range(192):
         x=0
@@ -110,6 +244,11 @@ for f in range(128):
             current[key]=idx
         active=current
     runs=b''.join(rectangles);count=len(rectangles);rect_counts.append(count)
+    if count>MAX_MESH_RECTS:
+        raise ValueError(
+            f'Mesh OBJ is too detailed for the fixed 4096-byte MESH record: frame {f} needs '
+            f'{count} merged rectangles, maximum is {MAX_MESH_RECTS}. Reduce polygon/detail count '
+            'or lower --mesh-radius before building the ROM.')
     restored=Image.new('P',(256,192));pixels=restored.load()
     for i in range(0,len(runs),11):
         x,xh,y,yh,w,wh,h,hh,c,arg,cmd=runs[i:i+11]
@@ -124,17 +263,17 @@ for f in range(128):
     bg.paste(im,(0,0),Image.frombytes('L',im.size,bytes(255 if c else 0 for c in im.tobytes())))
     mesh_reference.append({'frame':f,'raster_sha256':hashlib.sha256(packed(im)).hexdigest(),
                            'page2_sha256':hashlib.sha256(packed(bg)).hexdigest()})
-    # Last four bytes of each fixed record hold the exact nonzero-pixel bbox.
-    x0,y0,x1,y1=im.getbbox()
-    assert 0<x1-x0<256 and 0<y1-y0<=192
+    bbox=im.getbbox()
+    if bbox is None:raise ValueError(f'Mesh OBJ produced an empty raster at frame {f}')
+    x0,y0,x1,y1=bbox
+    if not (0<x1-x0<256 and 0<y1-y0<=192):
+        raise ValueError(f'Mesh OBJ does not fit the 256x192 render area at frame {f}: bbox={bbox}')
     bbox_areas.append((x1-x0)*(y1-y0))
     restore_areas.append((((x1+1)&~1)-(x0&~1))*(y1-y0))
-    assert len(runs)+2<=4092
     mesh+=(struct.pack('<H',count)+runs).ljust(4092,b'\0')+bytes((x0,y0,x1-x0,y1-y0))
     if f==16:
-        pal=Image.open(OUT/'chamber-256.png').getpalette();im.putpalette(pal);im.save(OUT/'mesh-source-preview.png')
+        pal=Image.open(OUT/'chamber-256.png').getpalette();im.putpalette(pal);mesh_preview=im.copy()
 add('MESH',mesh,4096)
-(OUT/'mesh-reference.json').write_text(json.dumps(mesh_reference,indent=2)+'\n')
 
 floor=bytearray();waves=bytearray();identity=bytearray()
 water_counts=[];water_shifted=[]
@@ -234,6 +373,9 @@ assert ROM_BANKS<=MAPPER_BANK_LIMIT,(
 used=len(banks)*BANK
 banks += [b'\xff'*BANK]*(ROM_BANKS-len(banks))
 banks[-1]=banks[-1][:-16]+b'MCX2'+bytes(12)
+# All geometry and capacity checks passed before publishing generated files.
+mesh_preview.save(OUT/'mesh-source-preview.png')
+(OUT/'mesh-reference.json').write_text(json.dumps(mesh_reference,indent=2)+'\n')
 (OUT/'megarom-data.bin').write_bytes(b''.join(banks[1:]))
 header=f'/* Generated by generate-megarom.py; {MAPPER} banked data, {ROM_BANKS} banks. */\n'
 for name,entry in layout.items():
@@ -245,6 +387,8 @@ header+='#define MESH_BBOX_OFFSET 4092\n'
 header+='#define MEGAROM_BYTES 1048576UL\n'
 (OUT/'bank-layout.h').write_text(header,encoding='ascii')
 layout['summary']={'rom_bytes':1048576,'allocated_bytes':used,'mapper':MAPPER,'rom_banks':ROM_BANKS,
+                   'mesh_obj':mesh_obj_path.name,'mesh_obj_sha256':mesh_obj_sha256,'mesh_radius':args.mesh_radius,
+                   'mesh_vertices':len(mesh_vertices_raw),'mesh_faces':len(mesh_faces),'mesh_triangles':len(mesh_triangles),
                    'water_mean_runs':sum(water_counts)/256,'water_min_runs':min(water_counts),'water_max_runs':max(water_counts),
                    'water_mean_shifted_runs':sum(water_shifted)/256,'water_mean_commands':sum(a+2*b for a,b in zip(water_counts,water_shifted))/256,
                    'mesh_bbox_mean_area':sum(bbox_areas)/128,'mesh_restore_mean_area':sum(restore_areas)/128,

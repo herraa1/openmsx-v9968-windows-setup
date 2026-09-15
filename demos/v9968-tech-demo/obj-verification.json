@@ -1,0 +1,203 @@
+{
+  "date": "2026-09-15",
+  "rom_sha256": "0b51479522fc4b76cb5b396f15dbfc6b798aaa4d7210b804bcd0604960c54a83",
+  "default": {
+    "rom_bytes": 1048576,
+    "allocated_bytes": 966656,
+    "mapper": "ASCII16",
+    "rom_banks": 64,
+    "mesh_obj": "octahedron.obj",
+    "mesh_obj_sha256": "328de846fb1f6326863bd38dbd6682e41370c10682af94027a898701ba111b1e",
+    "mesh_radius": 88.0,
+    "mesh_vertices": 6,
+    "mesh_faces": 8,
+    "mesh_triangles": 8,
+    "water_mean_runs": 53.1015625,
+    "water_min_runs": 47,
+    "water_max_runs": 59,
+    "water_mean_shifted_runs": 35.0859375,
+    "water_mean_commands": 123.2734375,
+    "mesh_bbox_mean_area": 14771.1015625,
+    "mesh_restore_mean_area": 14892.390625,
+    "mesh_mean_rectangles": 215.390625,
+    "mesh_min_rectangles": 104,
+    "mesh_max_rectangles": 296,
+    "mesh_max_spans": 329,
+    "mesh_mean_spans": 250.8203125
+  },
+  "old_pre_obj_vs_new_default_identical_frames": 0,
+  "tests": {
+    "cbios": {
+      "six_scenes_controls_headers": "PASS",
+      "water_identity_wave": "PASS",
+      "all_128_mesh_poses_cache_reentry": "PASS",
+      "all_128_glow_poses_pages_0_1": "PASS"
+    },
+    "fsa1gt": {
+      "six_scenes_controls_headers": "PASS",
+      "water_identity_wave": "PASS",
+      "all_128_mesh_poses_cache_reentry": "PASS",
+      "all_128_glow_poses_pages_0_1": "PASS"
+    }
+  },
+  "host_tests": "PASS: test-obj-input.py; explicit radius74 for torus failure fixture",
+  "torus": {
+    "rom_bytes": 1048576,
+    "allocated_bytes": 966656,
+    "mapper": "ASCII16",
+    "rom_banks": 64,
+    "mesh_obj": "torus.obj",
+    "mesh_obj_sha256": "1975b944fb283d579cdc9f1cd9f972c0daae566ad011733a6cbb8728a5125082",
+    "mesh_radius": 74.0,
+    "mesh_vertices": 72,
+    "mesh_faces": 72,
+    "mesh_triangles": 144,
+    "water_mean_runs": 53.1015625,
+    "water_min_runs": 47,
+    "water_max_runs": 59,
+    "water_mean_shifted_runs": 35.0859375,
+    "water_mean_commands": 123.2734375,
+    "mesh_bbox_mean_area": 10345.0703125,
+    "mesh_restore_mean_area": 10459.125,
+    "mesh_mean_rectangles": 269.953125,
+    "mesh_min_rectangles": 70,
+    "mesh_max_rectangles": 356,
+    "mesh_max_spans": 494,
+    "mesh_mean_spans": 381.890625
+  },
+  "torus_results": "Prior radius74 build and emulator results retained; explicit --mesh-radius 74 required.",
+  "historical_radius74_validation": {
+    "invalid_obj_cases_rejected": 3,
+    "external_obj_negative_slash_indices": "PASS",
+    "external_path_spaces_unicode": "PASS",
+    "default_vs_equivalent_external_all_128_frames": "identical",
+    "old_pre_obj_vs_new_default_identical_frames": 0,
+    "default": {
+      "rom_bytes": 1048576,
+      "allocated_bytes": 966656,
+      "mapper": "ASCII16",
+      "rom_banks": 64,
+      "mesh_obj": "octahedron.obj",
+      "mesh_obj_sha256": "328de846fb1f6326863bd38dbd6682e41370c10682af94027a898701ba111b1e",
+      "mesh_radius": 74.0,
+      "mesh_vertices": 6,
+      "mesh_faces": 8,
+      "mesh_triangles": 8,
+      "water_mean_runs": 53.1015625,
+      "water_min_runs": 47,
+      "water_max_runs": 59,
+      "water_mean_shifted_runs": 35.0859375,
+      "water_mean_commands": 123.2734375,
+      "mesh_bbox_mean_area": 10184.9140625,
+      "mesh_restore_mean_area": 10295.21875,
+      "mesh_mean_rectangles": 180.203125,
+      "mesh_min_rectangles": 85,
+      "mesh_max_rectangles": 250,
+      "mesh_max_spans": 271,
+      "mesh_mean_spans": 208.84375
+    },
+    "date": "2026-09-15",
+    "rom_sha256": "6f45abc6ab83ce92549234364a2ba4b6f4b8577ddd3b3c32f28dfeef3125b7de",
+    "torus": {
+      "rom_bytes": 1048576,
+      "allocated_bytes": 966656,
+      "mapper": "ASCII16",
+      "rom_banks": 64,
+      "mesh_obj": "torus.obj",
+      "mesh_obj_sha256": "1975b944fb283d579cdc9f1cd9f972c0daae566ad011733a6cbb8728a5125082",
+      "mesh_radius": 74.0,
+      "mesh_vertices": 72,
+      "mesh_faces": 72,
+      "mesh_triangles": 144,
+      "water_mean_runs": 53.1015625,
+      "water_min_runs": 47,
+      "water_max_runs": 59,
+      "water_mean_shifted_runs": 35.0859375,
+      "water_mean_commands": 123.2734375,
+      "mesh_bbox_mean_area": 10345.0703125,
+      "mesh_restore_mean_area": 10459.125,
+      "mesh_mean_rectangles": 269.953125,
+      "mesh_min_rectangles": 70,
+      "mesh_max_rectangles": 356,
+      "mesh_max_spans": 494,
+      "mesh_mean_spans": 381.890625
+    },
+    "capacity_negative": "torus radius120: frame0 needs491 rectangles; rejected above371",
+    "notes": "No FPS remeasurement. Historical shipped benchmark ROMs preserved.",
+    "builds": {
+      "default": {
+        "demo_sha256": "6f45abc6ab83ce92549234364a2ba4b6f4b8577ddd3b3c32f28dfeef3125b7de",
+        "benchmark_sha256": "6999b6c7c9030a68b05cb2e6e005774763ea17a2ad63b7bf368b773f026f6209",
+        "mesh_override": null,
+        "demo_build": "PASS",
+        "benchmark_build": "PASS",
+        "emulator_tests": {
+          "C-BIOS Z80": {
+            "six_scenes": "PASS",
+            "water": "PASS",
+            "benchmark_modes_controls": "PASS"
+          },
+          "FS-A1GT R800": {
+            "six_scenes": "PASS",
+            "water": "PASS",
+            "benchmark_modes_controls": "PASS"
+          }
+        }
+      },
+      "torus": {
+        "demo_sha256": "f80476bdc7499963a3cb90d1ccb76dc373a82036f8217c9ff9fc1ebd1c7f223c",
+        "benchmark_sha256": "eca31e3be672780f087af63f629d20c1c11cab9ed5e1a615aa748456e3178a0a",
+        "mesh_override": "assets/torus.obj",
+        "demo_build": "PASS",
+        "benchmark_build": "PASS",
+        "emulator_tests": {
+          "C-BIOS Z80": {
+            "six_scenes": "PASS",
+            "water": "PASS",
+            "benchmark_modes_controls": "PASS"
+          },
+          "FS-A1GT R800": {
+            "six_scenes": "PASS",
+            "water": "PASS",
+            "benchmark_modes_controls": "PASS"
+          }
+        }
+      }
+    },
+    "default_additional_tests": {
+      "128_pose_cache_reentry_both_cpus": "PASS",
+      "128_glow_pose_pages_both_cpus": "PASS",
+      "default_rom_fixed_bank_matches_preexisting_torus": true
+    },
+    "review_followup": {
+      "nonfinite_vertex_diagnostics": "PASS: nan, inf, -inf, overflow; path and line2",
+      "continued_faces": "PASS: all octahedron faces equal, including comments",
+      "continued_vertex_and_unterminated_eof": "PASS",
+      "injected_capacity_failure_after_preview_frame": "PASS: frame17 failure leaves all five output files unchanged",
+      "generated_default_assets_match_pre_review": {
+        "mesh-source-preview.png": true,
+        "mesh-reference.json": true,
+        "megarom-data.bin": true,
+        "bank-layout.h": true,
+        "bank-layout.json": true
+      },
+      "late_failure_kind": "Artificial test-only threshold at frame17; not a naturally oversized OBJ",
+      "four_rom_builds_unchanged": true,
+      "emulator_retest": "Not repeated: all four ROMs and generated assets are byte-identical; prior runtime results retained."
+    }
+  },
+  "unverified": [
+    "FPGA",
+    "FPS remeasurement",
+    "CStream with current OBJ"
+  ],
+  "benchmark_rebuild": {
+    "sha256": "5b50384d2e1ce01c45aafc0bd815a601057bfdf0c33ef0e5067f6894aa2d479e",
+    "shipped": false,
+    "reason": "Historical shipped ROMs remain tied to their measurements",
+    "emulator_tests": {
+      "cbios": "PASS: modes and controls",
+      "fsa1gt": "PASS: modes and controls"
+    }
+  }
+}

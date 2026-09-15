@@ -4,6 +4,11 @@
 
 # Changelog
 
+## 0.7.2
+
+- Wavefront OBJ meshes are now supported. The original octahedron shape remains the default, and Torus/Donut is an optional example. The default octahedron uses radius 88; the torus example explicitly uses radius 74. Rasterization and shading differ from 0.7.1; see the demo documentation before comparing images or performance.
+- Preserve the 128 × 4096-byte MESH format; validate capacity, external OBJ paths, water and feedback rendering.
+
 ## 0.7.1 — 2026-09-15
 
 - Animated FULL mode improved from **6.43 to 10.07 FPS on Z80** and **8.24 to 12.31 FPS on R800** in the pinned openMSX fork (three 15-second measurement windows). Animation timing is unchanged.

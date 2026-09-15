@@ -1,9 +1,12 @@
-﻿param([Parameter(Mandatory=$true)][string]$Z88dk,[switch]$Diagnostic,[switch]$CStream)
+﻿param([Parameter(Mandatory=$true)][string]$Z88dk,[switch]$Diagnostic,[switch]$CStream,[string]$MeshObj="",[double]$MeshRadius)
 $ErrorActionPreference='Stop'
 if(!(Test-Path -LiteralPath "$Z88dk/bin/zcc.exe")){throw 'Specify the z88dk root using -Z88dk.'}
 python "$PSScriptRoot/generate-fonts.py"
 if($LASTEXITCODE -ne 0){throw 'Font generation failed'}
-python "$PSScriptRoot/generate-megarom.py"
+$meshArgs=@("$PSScriptRoot/generate-megarom.py")
+if($PSBoundParameters.ContainsKey('MeshRadius')){$meshArgs+=@("--mesh-radius",$MeshRadius.ToString([Globalization.CultureInfo]::InvariantCulture))}
+if($MeshObj){$meshArgs+=@("--mesh-obj",$MeshObj)}
+python @meshArgs
 if($LASTEXITCODE -ne 0){throw 'ROM data generation failed'}
 python "$PSScriptRoot/verify-water-model.py"
 if($LASTEXITCODE -ne 0){throw 'Water model verification failed'}

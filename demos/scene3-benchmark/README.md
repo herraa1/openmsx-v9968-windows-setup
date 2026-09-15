@@ -95,3 +95,7 @@ The optimized path uses HMMM for dirty background restoration and merged water r
 Primary sources checked on 2026-09-10. Register values target the pinned fork and must not be assumed to match other implementations.
 
 Optimization technical presentation: [PDF](scene3-optimization.pdf).
+
+## OBJ builds
+
+A build without `-MeshObj` uses `assets/octahedron.obj` from the shared demo. For example, `build.ps1 -Z88dk <z88dk> -MeshObj assets/torus.obj -MeshRadius 74` selects the optional torus. External OBJ paths are also accepted. Shipped benchmark ROMs and measurements remain historical 0.7.1 artifacts; a rebuilt OBJ ROM has a different identity and workload. See the [OBJ compatibility notes](../v9968-tech-demo/README.md#obj-compatibility-and-default-shape).

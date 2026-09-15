@@ -95,3 +95,7 @@ FS-A1GT は runtime\fsa1gt を指定します。テストは独立した test-ou
 一次資料の確認日：2026-09-10。レジスター値は採用中の派生版向けであり、別実装へそのまま適用しないでください。
 
 最適化の技術解説：[PDF](scene3-optimization.ja.pdf)。
+
+## OBJを指定したビルド
+
+`-MeshObj` を省略すると共通デモの `assets/octahedron.obj` を使います。例として `build.ps1 -Z88dk <z88dk> -MeshObj assets/torus.obj -MeshRadius 74` でトーラスを選択できます。外部OBJのパスも指定可能です。同梱ベンチマークROMと測定値は0.7.1の履歴資料です。OBJによる再ビルド品はROMの識別値と描画負荷が変わります。[OBJの互換性と既定形状](../v9968-tech-demo/README.ja.md#obj互換性と既定形状)も参照してください。

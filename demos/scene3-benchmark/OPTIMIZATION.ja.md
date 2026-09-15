@@ -2,7 +2,9 @@
 
 # Scene 3 の画素を維持した最適化
 
-2026-09-14測定。0.7.1に同梱した最適化の測定結果です。公開済みの基準ROM・rom.json・results.jsonは変更していません。最適化版は `SCENE3-BENCHMARK-OPTIMIZED.rom`、ハッシュは [rom-optimized.json](rom-optimized.json)、全測定のフレーム数・経過tickは [results-optimized.json](results-optimized.json) に記録しています。
+2026-09-14測定。0.7.1に同梱した最適化の測定結果です。
+> **過去測定の形状について:** この文書のFPS・bbox・メッシュコマンド数はすべて2026-09-14時点の既定八面体で測定した値です。現在の生成器は任意OBJを入力でき、既定は `assets/octahedron.obj` です。そのOBJでベンチマークを再ビルドすると形状負荷が変わるため、新しいOBJの測定値を以下の数値と直接比較しないでください。
+公開済みの基準ROM・rom.json・results.jsonは変更していません。最適化版は `SCENE3-BENCHMARK-OPTIMIZED.rom`、ハッシュは [rom-optimized.json](rom-optimized.json)、全測定のフレーム数・経過tickは [results-optimized.json](results-optimized.json) に記録しています。
 
 ## 測定方法
 
