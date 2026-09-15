@@ -6,11 +6,15 @@
 #include "mapper.h"
 #include "bank-layout.h"
 #define ORB_SIZE 80
+#ifndef VDP_BASE
+#define VDP_BASE 152 /* 0x98 */
+#endif
 static const u8 palette_rgb5[48]={0,0,1,1,2,3,2,3,5,3,5,7,4,7,10,6,10,13,9,13,16,13,18,21,5,6,7,9,10,11,14,15,16,20,21,22,25,27,28,31,31,30,9,27,31,23,17,8};
-__sfr __at (0x99) vctrl;
-__sfr __at (0x98) vdata;
-__sfr __at (0x9a) vpal;
-__sfr __at (0x9b) vcmd;
+__sfr __at (VDP_BASE+1) vctrl;
+__sfr __at (VDP_BASE) vdata;
+__sfr __at (VDP_BASE+2) vpal;
+__sfr __at (VDP_BASE+3) vcmd;
+__sfr __at (VDP_BASE+4) visacr;
 volatile u16 ticks;
 u8 back_page;
 static u8 irq_live;
@@ -25,6 +29,22 @@ u8 benchmark_vdp, benchmark_mode;
 #ifdef V9968_DEMO_DIAGNOSTIC
 static u8 diag_index;
 #endif
+
+void orig_vdp_prepare(void){
+#if VDP_BASE == 0x88
+#asm
+    di
+    xor a
+    out (099h),a
+    ld a,080h
+    out (099h),a
+    xor a
+    out (099h),a
+    ld a,081h
+    out (099h),a
+#endasm
+#endif
+}
 
 /* DI/EI protect the two-write control latch. Restore this module's IRQ
    policy (irq_live), not an unconditional EI or a portable C substitute. */
@@ -56,6 +76,7 @@ u16 clock_ticks(void) __naked {
    A normal C function cannot replace this interrupt ABI. */
 void frame_irq(void) __naked {
 #asm
+    GLOBAL _vctrl
     push af
     push bc
     push de
@@ -70,14 +91,14 @@ void frame_irq(void) __naked {
     push hl
     exx
     ld a,0
-    out (099h),a
+    out (_vctrl),a
     ld a,08fh
-    out (099h),a
-    in a,(099h)
+    out (_vctrl),a
+    in a,(_vctrl)
     ld a,2
-    out (099h),a
+    out (_vctrl),a
     ld a,08fh
-    out (099h),a
+    out (_vctrl),a
     ld hl,(_ticks)
     inc hl
     ld (_ticks),hl
@@ -103,7 +124,7 @@ void timer_start(void){
     u16 i;
     for(i=0;i<257;++i)*((u8*)0xd000+i)=0xd1;
     *((u8*)0xd1d1)=0xc3;*((u16*)0xd1d2)=(u16)frame_irq;
-    reg(15,0);inp(0x99);reg(15,2);reg(1,96);
+    reg(15,0);inp(VDP_BASE+1);reg(15,2);reg(1,96);
 #asm
     ld a,0d0h
     ld i,a
@@ -127,7 +148,7 @@ static void stream_wait(void) __naked {
 #asm
     ld bc,65535
 mc_wait_busy:
-    in a,(099h)
+    in a,(_vctrl)
     and 1
     ret z
     dec bc
@@ -139,7 +160,7 @@ mc_wait_busy:
 }
 static void wait_cmd(void){
     u16 budget=65535;
-    while(inp(0x99)&1){
+    while(inp(VDP_BASE+1)&1){
         if(--budget==0){
             command_fault();
         }
@@ -292,7 +313,7 @@ static u8 lrmm_moved(void){
        the count is a bound rather than a guarantee: if CE is never seen the
        loop simply falls through, and the result is confirmed afterwards
        instead of being assumed correct. */
-    for(spin=0;spin<1024;++spin)if(inp(0x99)&1)break;
+    for(spin=0;spin<1024;++spin)if(inp(VDP_BASE+1)&1)break;
     wait_cmd();
     reg(14,0);
     return vram_peek(8)==0xff;
@@ -318,7 +339,9 @@ static void r20_select(void){
 /* --------------------------------------------------- end of the R20 probe -- */
 u8 video_init(void){
     u8 id,y;u16 i;const u8 *p;
-    reg(21,0x3a);reg(15,1);id=(inp(0x99)>>1)&31;
+    orig_vdp_prepare();
+    visacr=0;
+    reg(21,0x3a);reg(15,1);id=(inp(VDP_BASE+1)>>1)&31;
     #ifdef SCENE3_BENCHMARK
     if(id>3){reg(15,0);return 0;}
     benchmark_vdp=id;benchmark_mode=(id==3)?0:2;
@@ -429,14 +452,15 @@ mc_span_next:
 #asm
     di
     ld a,36
-    out (099h),a
+    out (_vctrl),a
     ld a,091h
-    out (099h),a
+    out (_vctrl),a
     ei
-    ld bc,0039bh
+    ld b,3
+    ld c,_vcmd
     otir
     ld a,(_mesh_destination_page)
-    out (09bh),a
+    out (_vcmd),a
     inc hl
     ld b,7
     otir
@@ -510,21 +534,24 @@ mc_glow_next:
     pop de
     di
     ld a,36
-    out (099h),a
+    out (_vctrl),a
     ld a,091h
-    out (099h),a
+    out (_vctrl),a
     ei
-    ld bc,0039bh
+    ld b,3
+    ld c,_vcmd
     otir
     ld a,(_back_page)
-    out (09bh),a
+    out (_vcmd),a
     inc hl
-    ld bc,0049bh
+    ld b,4
+    ld c,_vcmd
     otir
     ld a,15
-    out (09bh),a
+    out (_vcmd),a
     inc hl
-    ld bc,0029bh
+    ld b,2
+    ld c,_vcmd
     otir
     dec de
     jr mc_glow_next
@@ -735,13 +762,14 @@ mc_water_submit:
     call _stream_wait
     di
     ld a,32
-    out (099h),a
+    out (_vctrl),a
     ld a,091h
-    out (099h),a
+    out (_vctrl),a
     ei
     push hl
     ld hl,_water_packet
-    ld bc,00f9bh
+    ld b,0fh
+    ld c,_vcmd
     otir
     pop hl
     ret
