@@ -1,13 +1,14 @@
-﻿param([Parameter(Mandatory=$true)][string]$Runtime,[switch]$SlowCommands,[switch]$Trace,[switch]$DiagnosticTest,[switch]$Standard,[string]$CaptureScript)
+﻿param([Parameter(Mandatory=$true)][string]$Runtime,[switch]$SlowCommands,[switch]$Trace,[switch]$DiagnosticTest,[switch]$Standard,[string]$CaptureScript,[switch]$CStream,[switch]$PassThru)
+$buildDir=if($CStream){'build-c'}else{'build'}
 $ErrorActionPreference='Stop'
 $Runtime=[IO.Path]::GetFullPath($Runtime)
 $cfg=Get-Content "$Runtime/config.json" -Raw|ConvertFrom-Json
-$work=Join-Path $PSScriptRoot ('test-output/'+$cfg.mode+'-'+(Get-Date -Format 'yyyyMMdd-HHmmss'))
+$work=Join-Path $PSScriptRoot ('test-output/'+$cfg.mode+'-'+(Get-Date -Format 'yyyyMMdd-HHmmss')+'-'+[guid]::NewGuid().ToString('N'))
 [IO.Directory]::CreateDirectory($work)|Out-Null
 $sourceRom=if($DiagnosticTest){'V9968-TECH-DEMO-DIAGNOSTIC.rom'}else{'V9968-TECH-DEMO.rom'}
-Copy-Item "$PSScriptRoot/build/$sourceRom" (Join-Path $work 'V9968-TECH-DEMO.rom')
+Copy-Item "$PSScriptRoot/$buildDir/$sourceRom" (Join-Path $work 'V9968-TECH-DEMO.rom')
 Copy-Item "$PSScriptRoot/capture.tcl" $work
-$mapText=Get-Content "$PSScriptRoot/build/V9968-TECH-DEMO.map" -Raw
+$mapText=Get-Content "$PSScriptRoot/$buildDir/V9968-TECH-DEMO.map" -Raw
 if($mapText -notmatch '(?m)^_flip\s*=\s*\$([0-9A-Fa-f]+)'){throw 'Missing flip symbol'}
 ('set flip_address 0x'+$Matches[1]) | Set-Content "$work/test-symbols.tcl" -Encoding ascii
 $layout=Get-Content "$PSScriptRoot/assets/bank-layout.json" -Raw|ConvertFrom-Json
@@ -77,8 +78,10 @@ try{
  if($CaptureScript){if((Get-Content "$work/telemetry.txt" -Raw) -notmatch 'CAPTURE=PASS'){throw 'Capture failed'}}
  elseif($Standard){if((Get-Content "$work/telemetry.txt" -Raw) -notmatch 'V9968 REQUIRED'){throw 'Unsupported VDP check failed'}}
  elseif(!$DiagnosticTest -and (Get-Content "$work/telemetry.txt" -Raw) -notmatch 'SCENES_AND_ESCAPE=PASS'){throw 'Scene sequence or Escape test failed; inspect telemetry'}
- Get-Content "$work/telemetry.txt"
- Write-Host $work
+ if($PassThru){[pscustomobject]@{WorkDirectory=$work}}else{
+  Get-Content "$work/telemetry.txt"
+  Write-Host $work
+ }
 }
 finally{Pop-Location}
 

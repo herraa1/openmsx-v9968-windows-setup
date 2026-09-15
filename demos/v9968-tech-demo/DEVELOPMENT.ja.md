@@ -4,6 +4,13 @@
 
 [デモの説明](README.ja.md)
 
+## Scene 3 の画素を維持した最適化
+
+`water_prepare(pose)` はページ2に背景と立体を保持します。ページ3から前の立体の外接矩形だけを復元し、統合したLMMV矩形をページ2に描きます。同じポーズは再利用します。`water_draw()` は縦に統合したHMMMと、左右端を1画素ずつ繰り返すLMMMを裏画面へ転送します。全面クリア・退避コピーは不要で、転送元は途中で変更しません。背景とテクスチャの読み込みでキャッシュを無効化します。
+
+MESHは4,096バイト刻みを維持し、4092から外接矩形の4バイトを置きます。WATERは512バイト刻みで、個数とsx/dx/幅/sy/高さの5バイトレコードです。IDENTITYは単一転送です。生成時に元のラスタと水面の行を照合します。`test-water-work.ps1 -Runtime <runtime>` は全ポーズ・再利用・Scene6からの再進入をVRAMで確認します。build.ps1の `-CStream` は診断用C処理を選びます。[段階別の測定とビルド・試験方法](../scene3-benchmark/OPTIMIZATION.ja.md)。
+
+
 ## ビルド
 
 Python 3・Pillow と z88dk が必要です。通常のセットアップ・起動には不要です。このフォルダで実行します。
@@ -88,9 +95,9 @@ powershell.exe -NoProfile -ExecutionPolicy Bypass -File test-water.ps1 -Runtime 
 
 C-BIOSは最後のパスを `cbios` に変更します。`test.ps1` は6シーン、キー1・3・0・W・Esc、VDPエラー、バンク、背景、全シーンのヘッダーの画素単位一致、Scene 3 のヘッダー行が水面とともに動くこと、R20 の判定がこの派生版に必要な値を選んだことを確認します。`test-water.ps1` は無変形と変形時の水処理を独立した参照値と比較します。所有BIOSを含む `test-output/` は公開しません。通常起動の専用データは `runtime/<mode>/user-tech-demo/<SHA-256先頭12文字>/` に保存します。
 
-[0.7.0の検証結果（JSON）](verification.json) を参照してください。実機、別エミュレーター、4 MiB超、18分超の連続再生、音質は未検証です。16ビット時計は約18分で周回します。CPUやフォントの識別成功は、すべての機能の動作保証ではありません。
+[現在の開発版の検証結果（JSON）](verification.json) を参照してください。実機、別エミュレーター、4 MiB超、18分超の連続再生、音質は未検証です。16ビット時計は約18分で周回します。CPUやフォントの識別成功は、すべての機能の動作保証ではありません。
 
-W キーはキーマトリクスの行5・ビット4です。テストでは Y が切り替えに反応しないこと、W の長押しで再切り替えされないこと、離して押し直すと戻ることを確認します。描画完了時の VRAM も比較し、OFF では退避した画面と一致、ON では変形して異なることを検証します。キー入力はエミュレーターへの注入で、物理キーボードによる操作確認とは区別しています。
+W キーはキーマトリクスの行5・ビット4です。テストでは Y が切り替えに反応しないこと、W の長押しで再切り替えされないこと、離して押し直すと戻ることを確認します。描画完了時の VRAM も比較し、OFF では変形前の作業画面と一致、ON では変形して異なることを検証します。キー入力はエミュレーターへの注入で、物理キーボードによる操作確認とは区別しています。
 
 ## 参考資料
 
@@ -110,3 +117,30 @@ python make-preview.py "test-output\実行フォルダ\user\screenshots" water-p
 最新版ROMのScene 3を16枚撮影し、ニアレストネイバーで2倍（640×480）に拡大、各130msでループします。GIFは無音で約2.08秒の抜粋です。デモ本体のFPSを示すものではありません。`--scale 1` で元のサイズも生成できます。
 
 - [MSX Technical Data Book：1.3.5 キーマトリクス](https://map.grauw.nl/resources/system/msxtech.pdf) (2026-09-10)
+
+## C実装とアセンブラ実装の比較
+
+`V9968_SCENE3_C_STREAM` をビルド時に定義すると、`v9968.c` のメッシュ・残光・水面の転送処理をC実装に切り替えます。`build.ps1 -CStream` がこの定義を渡します。C実装を `#if 0` で無効化せず、対応するアセンブラの直前に置き、両方をコンパイル・実行できる状態で維持します。
+
+| 処理 | C実装とアセンブラの対応 |
+| --- | --- |
+| CE待機 | `wait_cmd()` ↔ `stream_wait()`。最大65,535回のポーリングと同じ異常停止処理 |
+| メッシュ | `stream_mesh_page()` の2実装。11バイトのR36〜R46パケットを送り、3番の描画先ページだけ置換 |
+| 残光 | `stream_spans_glow()` の2実装。描画先ページと8番の色を15へ置換し、幅・高さ・コマンドを維持 |
+| 水面 | Cの `water_draw()` ↔ `stream_water_runs()`。帯の主転送と端の1画素反復を同じ順序で出力 |
+
+同じ入力から同じ画素・ページ・コマンド効果を得ることを比較します。実行時間、命令数、割り込みが入る位置は同一ではありません。時間でポーズが進むため、連続再生の各フレームが一致するとは限りません。ポーリング回数は同じでも、タイムアウトまでの実時間は異なります。
+
+割り込み入口のレジスター保存と `RETI`、`DI/EI`、IM2設定、原子的な16ビット時計読み出し、BIOSのレジスター引数は専用処理を維持します。単純なCへの置換は割り込みABIやタイミングを壊すため、C表記の処理概要をコメントで対応付けています。バンク選択にも等価なCのメモリ書込みを併記しています。今回の範囲では、ファイル分割による配置・ABIの変化を避け、同じ翻訳単位内で隣接させました。
+
+リポジトリ直下で実行します。`<z88dk>` と `<runtime>` は実際のフォルダへ置換してください。
+
+```powershell
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File demos/v9968-tech-demo/build.ps1 -Z88dk "<z88dk>" -CStream
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File demos/v9968-tech-demo/test.ps1 -Runtime "<runtime>" -CStream
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File demos/v9968-tech-demo/test-water.ps1 -Runtime "<runtime>" -CStream
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File demos/v9968-tech-demo/test-water-work.ps1 -Runtime "<runtime>" -CStream
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File demos/v9968-tech-demo/test-glow-stream.ps1 -Runtime "<runtime>" -CStream
+```
+
+C版は `build-c/`、通常版は `build/` に生成します。C版は配布ROMや既存の測定記録を上書きしません。通常版の検証では `-CStream` を外します。残光試験はシーンの時計を固定して全128形状と描画先ページ0/1を画素比較するもので、性能測定ではありません。両CPU・両実装の検証結果は [C/ASM比較結果（JSON）](stream-verification.json) に記録します。

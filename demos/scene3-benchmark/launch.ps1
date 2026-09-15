@@ -1,6 +1,8 @@
-param(
+﻿param(
  [ValidateSet('cbios','fsa1gt')][string]$Mode='cbios',
  [switch]$Standard,
+ [switch]$Optimized,
+ [switch]$CStream,
  [string]$Runtime,
  [string]$TestScript,
  [string]$WorkRoot
@@ -14,12 +16,19 @@ if($cfg.mode -ne $Mode){throw 'Runtime mode mismatch'}
 $exe=Join-Path $Runtime $(if($Standard){'emulator/openmsx-standard.exe'}else{'emulator/openmsx.exe'})
 $expected=if($Standard){$cfg.standardSha256}else{$cfg.forkSha256}
 if((Get-FileHash -LiteralPath $exe).Hash -ne $expected){throw 'Emulator hash mismatch'}
-$rom=Join-Path $PSScriptRoot 'SCENE3-BENCHMARK.rom'
+$romName=if($Optimized){'SCENE3-BENCHMARK-OPTIMIZED.rom'}else{'SCENE3-BENCHMARK.rom'}
+$infoName=if($Optimized){'rom-optimized.json'}else{'rom.json'}
+if($CStream){$romName='build-c/SCENE3-BENCHMARK-OPTIMIZED.rom'}
+$rom=Join-Path $PSScriptRoot $romName
 if(!(Test-Path -LiteralPath $rom)){throw 'Benchmark ROM missing. Extract the whole package or rebuild.'}
 if((Get-Item -LiteralPath $rom).Length -ne 1048576){throw 'Invalid benchmark ROM size'}
 $hash=(Get-FileHash -LiteralPath $rom).Hash
-$romInfo=Get-Content -LiteralPath "$PSScriptRoot/rom.json" -Raw|ConvertFrom-Json
+# CStream is a local development build with no published reference hash.
+# ROM size and emulator hash are still checked; its own hash isolates user data.
+if(!$CStream){
+$romInfo=Get-Content -LiteralPath "$PSScriptRoot/$infoName" -Raw|ConvertFrom-Json
 if($hash -ne $romInfo.sha256){throw 'Benchmark ROM hash mismatch. Re-extract the package or rebuild.'}
+}
 $kind=if($Standard){'standard'}else{'v9968'}
 $relative="user-scene3-benchmark/$kind/$($hash.Substring(0,12))"
 if($WorkRoot){

@@ -1,5 +1,7 @@
-param([Parameter(Mandatory=$true)][string]$Runtime,[switch]$Standard,
- [string]$ProbeRom,[ValidateSet(0,1,2)][int]$ExpectedError=0)
+﻿param([Parameter(Mandatory=$true)][string]$Runtime,[switch]$Standard,
+ [string]$ProbeRom,[ValidateSet(0,1,2,3)][int]$ExpectedError=0,
+ [ValidateSet("31","11","none")][string]$ExpectedR20="31",
+ [ValidateSet(0,1)][int]$ExpectedHigh=1)
 $ErrorActionPreference='Stop'
 $repo=Split-Path -Parent $PSScriptRoot
 $Runtime=[IO.Path]::GetFullPath($Runtime)
@@ -20,6 +22,7 @@ set save_settings_on_exit false
 set throttle false
 set sound_driver null
 after time 10 {
+ catch {screenshot -raw "@SHOT@"}
  set f [open result.txt w]
  puts $f [get_active_cpu]
  puts $f [get_screen]
@@ -29,6 +32,7 @@ after time 10 {
 }
 '@
 # Use runtime as cwd, keeping all emulator data arguments relative for Unicode paths.
+$tcl=$tcl.Replace('@SHOT@',($relative+'/screen.png'))
 $tcl=$tcl.Replace('open result.txt w',('open "'+$relative+'/result.txt" w'))
 [IO.File]::WriteAllText((Join-Path $work 'test.tcl'),$tcl)
 $saved=@{}
@@ -45,10 +49,19 @@ try{
  if(!$p.WaitForExit(60000)){$p.Kill();$p.WaitForExit();throw 'Probe test timed out'}
  if($p.ExitCode -ne 0){throw 'Probe emulator failed'}
  $result=Get-Content -LiteralPath (Join-Path $work 'result.txt') -Raw
- $required=@('V9968 / C ROM TEST','REPORT THESE LINES','RESTORE R14=0 R20=0')
+ $required=@('V9968 / C ROM TEST','REPORT THESE LINES','RESTORE R14=0 R20=0','PROBE REV=2')
  if($Standard){$required+=@('VDP ID=2','V9968 NOT IDENTIFIED','NO FURTHER TESTS RUN')}
  elseif($ExpectedError){$required+=@('VDP ID=3',"PROBE ERROR code=$ExpectedError",'PARTIAL RESULTS DISCARDED')}
- else{$required+=@('VDP ID=3','V9968 IDENTIFIED','R20B5  off=0 on=1','R20SEL value=31','LRMMOP timp=ff imp=00','LRMMST d0=1 d1=2','VRAM   a1 a2 a3 a4','CESEEN value=1')}
+ else{
+  $required+=@('VDP ID=3','V9968 IDENTIFIED','EXTID=3 R21=3a','VRAM   a1 a2 a3 a4','CESEEN value=1')
+  if($ExpectedR20 -eq 'none'){$required+=@('R20B5  off=0 on=0','R20SEL NONE','LRMM TESTS SKIPPED')}
+  else{
+   $required+=@("R20SEL value=$ExpectedR20","LRHIGH ok=$ExpectedHigh")
+   if($ExpectedR20 -eq '31'){$required+=@('R20B5  off=0 on=1','LRRAW off=00 on=ff')}
+   if($ExpectedHigh){$required+=@('LRMMOP timp=ff imp=00','LRMMST d0=1 d1=2')}
+   else{$required+='LRMM TESTS SKIPPED'}
+  }
+ }
  foreach($line in $required){if($result -notmatch [regex]::Escape($line)){throw "Missing probe output: $line"}}
  if(!$ExpectedError -and $result -match 'PROBE ERROR|PARTIAL RESULTS'){throw 'Probe reported incomplete experiments'}
  Write-Output $result

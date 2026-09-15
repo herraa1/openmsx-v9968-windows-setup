@@ -4,6 +4,17 @@
 
 A separate demo comparing the underwater ruins, moving geometry and water distortion on V9968 and conventional VDPs. It uses the same 1 MiB ROM with the ASCII16 mapper on both emulators. The existing six-scene demo remains available separately.
 
+## Optimized benchmark
+
+The exact Scene 3 optimization is supplied separately as `SCENE3-BENCHMARK-OPTIMIZED.rom`. [Measurements, architecture and reproduction](OPTIMIZATION.md). The launch BATs below retain the historical reference. To run the optimized ROM from the repository root:
+
+```powershell
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File demos/scene3-benchmark/launch.ps1 -Mode cbios -Optimized
+```
+
+Use `-Mode fsa1gt` for R800, and add `-Standard` for conventional V9958.
+
+
 ## Launch
 
 Run the corresponding setup BAT at the repository root, then open one of these BATs. z88dk is not required to run the demo.
@@ -52,7 +63,7 @@ FPS = completed page flips × 60 / elapsed VBlank count. The HUD uses approximat
 
 V9968 COMPAT and standard V9958 do not have identical performance. The comparison also includes differences between emulator implementations. These numbers do not guarantee physical hardware performance or a speed ratio for every command. The rendered scene region in FAST and COMPAT was pixel-identical at the fixed pose. Physical hardware, V9938 and other fork revisions remain untested.
 
-[Detailed test results (JSON)](results.json) / [Technical slides (Japanese PPTX)](technical-notes.ja.pptx) / [Technical slides (Japanese PDF)](technical-notes.ja.pdf)
+[Detailed test results (JSON)](results.json) / [Technical slides (Japanese PDF)](technical-notes.ja.pdf)
 
 ## C source and rebuilding
 
@@ -62,7 +73,7 @@ Run from the repository root, replacing the z88dk placeholder with your installa
 powershell.exe -NoProfile -ExecutionPolicy Bypass -File demos\scene3-benchmark\build.ps1 -Z88dk "<z88dk directory>"
 ```
 
-main.c renders only Scene 3. The benchmark shares v9968.c, mapper.c, platform.c, music.c and precomputed data with the existing demo. SCENE3_BENCHMARK enables the standard palette and conventional VDP startup paths. Rebuilding updates the benchmark ROM and rom.json, but does not replace the existing demo ROM. The shipped ROM is the one the published measurements were taken on, and results.json records its hash. A rebuild from the current sources picks up the shared code and assets as they are now, so it produces a ROM with a different hash; no measurements are published for a rebuilt one. The commit and toolchain the shipped ROM was built from are not recorded, so treat the pair of ROM and results.json as the reference rather than trying to reproduce it.
+main.c uses the same optimized Scene 3 path as the demo. Rebuilding writes SCENE3-BENCHMARK-OPTIMIZED.rom and rom-optimized.json, preserving the shipped reference ROM, rom.json and historical results.json. New measurements are in results-optimized.json. Add -Optimized to test.ps1 to test the rebuilt ROM; without it the test uses the historical reference.
 
 ```powershell
 powershell.exe -NoProfile -ExecutionPolicy Bypass -File demos\scene3-benchmark\test.ps1 -Runtime runtime\cbios
@@ -73,7 +84,7 @@ Use runtime\fsa1gt for FS-A1GT. Tests save results and screenshots in a separate
 
 ## Implementation and sources
 
-HMMM handles background copies, capture and water bands; LMMV draws polygon spans; LMMM fills the horizontal edges. LRMM is not used. Four pages require 128 KiB of VRAM. Rotation and projection use the existing demo's precomputed tables.
+The optimized path uses HMMM for dirty background restoration and merged water runs, LMMV for merged polygon rectangles, and LMMM for exact repeated edge pixels. The historical reference uses full background/capture copies and two-row bands. LRMM is not used. Four pages require 128 KiB of VRAM. Rotation and projection use the existing demo's precomputed tables.
 
 - [Fork VDP.hh](https://github.com/buppu3/openMSX/blob/d884c4b/src/video/VDP.hh): R20 HS=0x01 and EPAL=0x10.
 - [Fork VDP.cc](https://github.com/buppu3/openMSX/blob/d884c4b/src/video/VDP.cc): extended palettes use three R/G/B bytes; standard palettes use two RB/G bytes.
@@ -82,3 +93,5 @@ HMMM handles background copies, capture and water bands; LMMV draws polygon span
 - Thanks to the author of [MSX 8x8 font](../v9968-tech-demo/third-party/fonts/README.md), also used by the existing demo. That document provides attribution and usage terms.
 
 Primary sources checked on 2026-09-10. Register values target the pinned fork and must not be assumed to match other implementations.
+
+Optimization technical presentation: [PDF](scene3-optimization.pdf).

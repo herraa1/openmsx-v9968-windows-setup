@@ -1,0 +1,141 @@
+{
+  "date": "2026-09-14",
+  "environment": "Windows 10 x64 / Windows PowerShell 5.1 / z88dk zsdcc -SO3",
+  "emulator": "buppu3/openMSX d884c4b",
+  "roms": {
+    "assembly": {
+      "demo": "5f9577cf30c8dedbcf2ceffc70077beeabe002771726a7d944b6655d5bca8021",
+      "benchmark": "ce1504f2798d97ff56638db7f90ca72c79cdd8d14353d31d1ed97b61c39cc427"
+    },
+    "c": {
+      "demo": "c86790703449f75f6b7ef8b473c54655770de2fe9377b3fc299495fb76747c03",
+      "benchmark": "20f408efc6291558bd27c2264aeabb5039cf153132c2f9a7324463ace5973786"
+    }
+  },
+  "default_roms_unchanged": true,
+  "definitions": {
+    "c": "V9968_SCENE3_C_STREAM",
+    "assembly": "default"
+  },
+  "checks": {
+    "cbios": {
+      "assembly": {
+        "six_scenes_headers_keyboard_mapper_r20": "PASS",
+        "water_identity_and_wave_byte_reference": "PASS",
+        "water_128_poses_high_bit_cache_reentry_130_images": "PASS",
+        "glow_128_poses_pages_0_and_1_color_15": "PASS",
+        "benchmark_full_fast_compat_f_p_escape": "PASS"
+      },
+      "c": {
+        "six_scenes_headers_keyboard_mapper_r20": "PASS",
+        "water_identity_and_wave_byte_reference": "PASS",
+        "water_128_poses_high_bit_cache_reentry_130_images": "PASS",
+        "glow_128_poses_pages_0_and_1_color_15": "PASS",
+        "benchmark_full_fast_compat_f_p_escape": "PASS"
+      }
+    },
+    "fsa1gt": {
+      "assembly": {
+        "six_scenes_headers_keyboard_mapper_r20": "PASS",
+        "water_identity_and_wave_byte_reference": "PASS",
+        "water_128_poses_high_bit_cache_reentry_130_images": "PASS",
+        "glow_128_poses_pages_0_and_1_color_15": "PASS",
+        "benchmark_full_fast_compat_f_p_escape": "PASS"
+      },
+      "c": {
+        "six_scenes_headers_keyboard_mapper_r20": "PASS",
+        "water_identity_and_wave_byte_reference": "PASS",
+        "water_128_poses_high_bit_cache_reentry_130_images": "PASS",
+        "glow_128_poses_pages_0_and_1_color_15": "PASS",
+        "benchmark_full_fast_compat_f_p_escape": "PASS"
+      }
+    }
+  },
+  "c_standard_v9958": {
+    "cbios": "PASS",
+    "fsa1gt": "PASS"
+  },
+  "fixed_pose_pixel_comparisons": [
+    {
+      "machine": "cbios",
+      "capture": "fixed-full.png",
+      "region": [
+        32,
+        40,
+        288,
+        200
+      ],
+      "mismatched_pixels": 0,
+      "sha256": "92eea4d9152f20ed04b7786a34a6eea13bba465f9daa5cd065438806e9c8c324"
+    },
+    {
+      "machine": "cbios",
+      "capture": "fixed-fast.png",
+      "region": [
+        32,
+        40,
+        288,
+        200
+      ],
+      "mismatched_pixels": 0,
+      "sha256": "0ca0498ab75e55b55ce1c93ffb4e5512954fada50e3ef4573264f2ed7db56a1d"
+    },
+    {
+      "machine": "cbios",
+      "capture": "fixed-compat.png",
+      "region": [
+        32,
+        40,
+        288,
+        200
+      ],
+      "mismatched_pixels": 0,
+      "sha256": "0ca0498ab75e55b55ce1c93ffb4e5512954fada50e3ef4573264f2ed7db56a1d"
+    },
+    {
+      "machine": "fsa1gt",
+      "capture": "fixed-full.png",
+      "region": [
+        32,
+        40,
+        288,
+        200
+      ],
+      "mismatched_pixels": 0,
+      "sha256": "92eea4d9152f20ed04b7786a34a6eea13bba465f9daa5cd065438806e9c8c324"
+    },
+    {
+      "machine": "fsa1gt",
+      "capture": "fixed-fast.png",
+      "region": [
+        32,
+        40,
+        288,
+        200
+      ],
+      "mismatched_pixels": 0,
+      "sha256": "0ca0498ab75e55b55ce1c93ffb4e5512954fada50e3ef4573264f2ed7db56a1d"
+    },
+    {
+      "machine": "fsa1gt",
+      "capture": "fixed-compat.png",
+      "region": [
+        32,
+        40,
+        288,
+        200
+      ],
+      "mismatched_pixels": 0,
+      "sha256": "0ca0498ab75e55b55ce1c93ffb4e5512954fada50e3ef4573264f2ed7db56a1d"
+    }
+  ],
+  "limitations": [
+    "Emulator tests only; FPGA timing is not verified.",
+    "C and assembly have equivalent rendering semantics, not identical instruction timing.",
+    "Watchdog poll count is equal; elapsed timeout differs.",
+    "Original stage FPS results remain tied to the unchanged default ROMs."
+  ],
+  "historical_checks_not_repeated": [
+    "The previously recorded forced-watchdog timeout injection for the unchanged default ROM."
+  ]
+}

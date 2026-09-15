@@ -28,3 +28,11 @@ KANJI.ROM
 **/__pycache__/
 
 !/demos/scene3-benchmark/SCENE3-BENCHMARK.rom
+
+!/demos/scene3-benchmark/SCENE3-BENCHMARK-OPTIMIZED.rom
+
+# Isolated C-reference build output
+**/build-c/
+
+# Editable presentations are retained outside the repository.
+*.pptx

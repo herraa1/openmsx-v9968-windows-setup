@@ -1,4 +1,8 @@
 #include "mapper.h"
+/* C equivalent: *(volatile unsigned char *)(0x7000 |
+   (bank & 0x0f00)) = (unsigned char)bank;
+   HL is the fastcall input; the store encodes the ASCII16-X upper bank bits.
+   Kept in assembly to preserve the mapper ABI and existing ROM layout. */
 void bank_select(unsigned int bank) __z88dk_fastcall __naked {
 #asm
     ld a,l

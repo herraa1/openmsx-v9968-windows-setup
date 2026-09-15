@@ -33,9 +33,7 @@ int main(void){
     timer_start();epoch=start=clock_ticks();
     for(;;){
         now=clock_ticks();elapsed=paused?0:(u16)(now-epoch);
-        background();
-        stream_spans(bank_record(BANK_MESH,(elapsed>>1)&127,4096));
-        water_capture();
+        water_prepare((elapsed>>1)&127);
         water_draw(bank_record(BANK_WATER,(u8)(((unsigned long)elapsed*522)>>8),512));
         rect(0,0,256,16,0);rect(0,176,256,16,0);
         benchmark_text(8,0,"SCENE3 BENCHMARK");

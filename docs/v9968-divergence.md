@@ -1,5 +1,11 @@
 [日本語](v9968-divergence.ja.md) | English
 
+## 2026-09-14: Revision 2 diagnostic correction
+
+The old probe restored R21=0x3b after identification. The public FPGA source disables new commands in that mode, so Revision 2 retains 0x3a during experiments. The tester reported off=0/on=0 for the old probe while the demo succeeded with 0x11. The revised ROM has not yet been retested on hardware.
+
+See the [Revision 2 guide](../probe/README.md) and [current and historical records](../probe/verification.json). The original measurement tables below are historical observations for their stated ROM.
+
 [Home](../README.md)
 
 # Where V9968 implementations disagree

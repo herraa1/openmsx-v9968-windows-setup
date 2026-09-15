@@ -1,4 +1,4 @@
-﻿param([string]$Root=(Split-Path -Parent $PSScriptRoot),[string]$ZipPath)
+param([string]$Root=(Split-Path -Parent $PSScriptRoot),[string]$ZipPath)
 $ErrorActionPreference='Stop'
 Import-Module (Join-Path $PSHOME 'Modules/Microsoft.PowerShell.Utility/Microsoft.PowerShell.Utility.psd1') -ErrorAction Stop
 $Root=[IO.Path]::GetFullPath($Root)
@@ -19,8 +19,8 @@ foreach($rel in $list){
   $null=[Management.Automation.Language.Parser]::ParseFile($full,[ref]$tokens,[ref]$parseErrors)
   if($parseErrors.Count){throw "PowerShell syntax error: $rel"}
  }
- if($rel -match '^(runtime|cache|private|build|dist)/|(^|/)(cache|private|build|dist|user|test-output|__pycache__)/|^demos/[^/]+/runtime/' -or $rel -match '\.(exe|dll|dsk|part|zip|log)$'){throw "Private/generated path: $rel"}
- if($rel -match '\.rom$' -and $rel -cnotin @('probe/PROBE.rom','demos/v9968-tech-demo/V9968-TECH-DEMO.rom','demos/scene3-benchmark/SCENE3-BENCHMARK.rom')){throw "Unexpected ROM: $rel"}
+ if($rel -match '^(runtime|cache|private|build|dist)/|(^|/)(cache|private|build|build-c|dist|user|test-output|__pycache__)/|^demos/[^/]+/runtime/' -or $rel -match '\.(exe|dll|dsk|part|zip|log|pptx)$'){throw "Private/generated path: $rel"}
+ if($rel -match '\.rom$' -and $rel -cnotin @('probe/PROBE.rom','demos/v9968-tech-demo/V9968-TECH-DEMO.rom','demos/scene3-benchmark/SCENE3-BENCHMARK.rom','demos/scene3-benchmark/SCENE3-BENCHMARK-OPTIMIZED.rom')){throw "Unexpected ROM: $rel"}
  if($rel -notmatch '\.(png|rom|gif|bin|pptx|pdf)$'){
   $text=[IO.File]::ReadAllText($full)
   if($text -match 'C:\\Users\\' -or $text -match ('MSX'+'PLAYer')){throw "Personal path or unrelated product reference: $rel"}
@@ -49,6 +49,10 @@ $probeResults=Get-Content -LiteralPath (Join-Path $Root 'probe/verification.json
 if($probeResults.rom_sha256 -ne $manifest.probeSha256){throw 'Probe verification names a different ROM'}
 
 
+$optInfo=Get-Content -LiteralPath (Join-Path $Root 'demos/scene3-benchmark/rom-optimized.json') -Raw|ConvertFrom-Json
+$optPath=Join-Path $Root 'demos/scene3-benchmark/SCENE3-BENCHMARK-OPTIMIZED.rom'
+$optResults=Get-Content -LiteralPath (Join-Path $Root 'demos/scene3-benchmark/results-optimized.json') -Raw|ConvertFrom-Json
+if((Get-Item $optPath).Length -ne $optInfo.size -or (Get-FileHash $optPath).Hash -ne $optInfo.sha256 -or $optResults.rom_sha256 -ne $optInfo.sha256 -or $optResults.stages[-1].rom_sha256 -ne $optInfo.sha256 -or $optInfo.size -ne 1048576){throw 'Optimized benchmark ROM/results mismatch'}
 $expectedRoot=@('setup-cbios-v9968.bat','setup-fsa1gt-v9968.bat','launch-v9968-tech-demo-cbios.bat','launch-v9968-tech-demo-fsa1gt.bat')
 $demoPath=Join-Path $Root 'demos/v9968-tech-demo/V9968-TECH-DEMO.rom'
 if((Get-Item -LiteralPath $demoPath).Length -ne 1048576 -or (Get-FileHash -LiteralPath $demoPath).Hash -ne $manifest.demo.sha256){throw 'Demo ROM size/hash mismatch'}

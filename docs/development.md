@@ -34,3 +34,5 @@ Rebuilds from changed source or a different toolchain may have another hash. Bef
 ## Packaging
 
 Building the distribution ZIP is a separate task from C development. The [maintainer instructions](publishing.md) cover the validation and packaging commands, what they check, and how the ZIP is attached to Releases.
+
+[Revision 2 probe implementation, output and hardware retest procedure](../probe/README.md)

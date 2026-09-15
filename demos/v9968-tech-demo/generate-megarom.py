@@ -75,7 +75,7 @@ add('CORE',core,128);add('SHARDS',shards,128);add('ROTATION',panel,8)
 
 # An octahedron with faceted lighting and a drifting viewpoint. It is rasterized
 # into colored spans offline, then the VDP fills those spans during playback.
-mesh=bytearray();span_counts=[]
+mesh=bytearray();span_counts=[];rect_counts=[];bbox_areas=[];restore_areas=[];mesh_reference=[]
 vertices=[(0,-88,0),(0,88,0),(-76,0,0),(0,0,-76),(76,0,0),(0,0,76)]
 faces=[(tip,2+i,2+(i+1)%4) for tip in (0,1) for i in range(4)]
 for f in range(128):
@@ -95,14 +95,61 @@ for f in range(128):
             while end<256 and im.getpixel((end,y))==c:end+=1
             if c:runs+=bytes((x,0,y,0,end-x,0,1,0,c,0,0x80))
             x=end
-    count=len(runs)//11;span_counts.append(count)
-    assert len(runs)+2<=4096
-    mesh+=(struct.pack('<H',count)+runs).ljust(4096,b'\0')
+    span_counts.append(len(runs)//11)
+    original=runs;rectangles=[];active={}
+    for y in range(192):
+        current={}
+        for i in range(0,len(original),11):
+            packet=original[i:i+11]
+            if packet[2]!=y:continue
+            key=(packet[0],packet[4],packet[8])
+            if key in active:
+                idx=active[key];rectangles[idx][6]+=1
+            else:
+                idx=len(rectangles);rectangles.append(bytearray(packet))
+            current[key]=idx
+        active=current
+    runs=b''.join(rectangles);count=len(rectangles);rect_counts.append(count)
+    restored=Image.new('P',(256,192));pixels=restored.load()
+    for i in range(0,len(runs),11):
+        x,xh,y,yh,w,wh,h,hh,c,arg,cmd=runs[i:i+11]
+        assert xh==yh==wh==hh==arg==0 and cmd==0x80
+        assert x+w<=256 and y+h<=192 and w>0 and h>0
+        for yy in range(y,y+h):
+            for xx in range(x,x+w):
+                assert pixels[xx,yy]==0, 'Overlapping final raster rectangles'
+                pixels[xx,yy]=c
+    assert restored.tobytes()==im.tobytes(), f'Mesh mismatch at frame {f}'
+    bg=Image.open(OUT/'seabed-256.png').copy()
+    bg.paste(im,(0,0),Image.frombytes('L',im.size,bytes(255 if c else 0 for c in im.tobytes())))
+    mesh_reference.append({'frame':f,'raster_sha256':hashlib.sha256(packed(im)).hexdigest(),
+                           'page2_sha256':hashlib.sha256(packed(bg)).hexdigest()})
+    # Last four bytes of each fixed record hold the exact nonzero-pixel bbox.
+    x0,y0,x1,y1=im.getbbox()
+    assert 0<x1-x0<256 and 0<y1-y0<=192
+    bbox_areas.append((x1-x0)*(y1-y0))
+    restore_areas.append((((x1+1)&~1)-(x0&~1))*(y1-y0))
+    assert len(runs)+2<=4092
+    mesh+=(struct.pack('<H',count)+runs).ljust(4092,b'\0')+bytes((x0,y0,x1-x0,y1-y0))
     if f==16:
         pal=Image.open(OUT/'chamber-256.png').getpalette();im.putpalette(pal);im.save(OUT/'mesh-source-preview.png')
 add('MESH',mesh,4096)
+(OUT/'mesh-reference.json').write_text(json.dumps(mesh_reference,indent=2)+'\n')
 
 floor=bytearray();waves=bytearray();identity=bytearray()
+water_counts=[];water_shifted=[]
+def merge_water(row):
+    runs=[]
+    for i in range(0,len(row),4):
+        sx,dx,w,sy=row[i:i+4]
+        if runs and runs[-1][:3]==[sx,dx,w] and runs[-1][3]+runs[-1][4]==sy:
+            runs[-1][4]+=2
+        else:runs.append([sx,dx,w,sy,2])
+    expanded=bytes(c for sx,dx,w,sy,h in runs for offset in range(0,h,2) for c in (sx,dx,w,sy+offset))
+    assert expanded==row and sum(run[4] for run in runs)==192
+    result=bytes([len(runs)])+bytes(c for run in runs for c in run)
+    assert len(result)<=512
+    return result,runs
 for f in range(128):
     a=f*T/128;row=bytearray()
     for band in range(56):
@@ -123,10 +170,12 @@ for f in range(256):
         # Gentle horizontal extension; runtime repeats the edge pixels.
         dx=2*round(math.sin((y+1)*T/96-f*T/256))
         row+=bytes((max(0,-dx),max(0,dx),256-abs(dx) if dx else 0,sy))
-    waves+=row.ljust(512,b'\0')
+    encoded,runs=merge_water(row)
+    water_counts.append(len(runs));water_shifted.append(sum(bool(a or b) for a,b,_,_,_ in runs))
+    waves+=encoded.ljust(512,b'\0')
 add('FLOOR',floor,512);add('WATER',waves,512)
 for y in range(0,192,2):identity+=bytes((0,0,0,y))
-add('IDENTITY',identity)
+add('IDENTITY',merge_water(identity)[0])
 
 # Small opaque HUD labels, uploaded below the background in VRAM page 3.
 font = json.loads((OUT/'fonts.json').read_text(encoding='utf-8'))['msx8x8']
@@ -192,9 +241,14 @@ for name,entry in layout.items():
     # Frame counts travel with the layout so the runtime mask cannot drift
     # away from the number of records actually generated.
     if 'frames' in entry:header+=f'#define FRAMES_{name} {entry["frames"]}\n'
+header+='#define MESH_BBOX_OFFSET 4092\n'
 header+='#define MEGAROM_BYTES 1048576UL\n'
 (OUT/'bank-layout.h').write_text(header,encoding='ascii')
 layout['summary']={'rom_bytes':1048576,'allocated_bytes':used,'mapper':MAPPER,'rom_banks':ROM_BANKS,
+                   'water_mean_runs':sum(water_counts)/256,'water_min_runs':min(water_counts),'water_max_runs':max(water_counts),
+                   'water_mean_shifted_runs':sum(water_shifted)/256,'water_mean_commands':sum(a+2*b for a,b in zip(water_counts,water_shifted))/256,
+                   'mesh_bbox_mean_area':sum(bbox_areas)/128,'mesh_restore_mean_area':sum(restore_areas)/128,
+                   'mesh_mean_rectangles':sum(rect_counts)/128,'mesh_min_rectangles':min(rect_counts),'mesh_max_rectangles':max(rect_counts),
                    'mesh_max_spans':max(span_counts),'mesh_mean_spans':sum(span_counts)/128}
 (OUT/'bank-layout.json').write_text(json.dumps(layout,indent=2)+'\n')
 print(layout['summary'])

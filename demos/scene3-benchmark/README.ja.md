@@ -4,6 +4,17 @@
 
 海底遺跡、動く立体、水の揺らぎを、V9968 と従来の VDP で比較する独立したデモです。既存の6シーンのデモとは別に起動します。同じ1 MiB ROM を ASCII16 として使用します。
 
+## 最適化したベンチマーク
+
+画素を維持した最適化版を `SCENE3-BENCHMARK-OPTIMIZED.rom` として別に用意しています。[測定結果・処理構成・再現方法](OPTIMIZATION.ja.md)。下記の起動BATは公開済みの基準ROMを使います。最適化版はリポジトリ直下で次のように起動してください。
+
+```powershell
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File demos/scene3-benchmark/launch.ps1 -Mode cbios -Optimized
+```
+
+R800は `-Mode fsa1gt`、従来V9958は `-Standard` も指定します。
+
+
 ## 起動
 
 リポジトリ直下の対応する setup BAT を実行してから、次の BAT を開いてください。通常の起動に z88dk は不要です。
@@ -52,7 +63,7 @@ FPS = 完了した画面交換回数 × 60 ÷ 経過 VBlank 数。表示は約2�
 
 V9968 の COMPAT と通常 V9958 の速度は同一ではありません。比較対象にはエミュレーター実装の差も含まれます。実機や全コマンドの性能倍率を保証する値ではありません。固定姿勢で FAST と COMPAT の描画部分が画素単位で一致することを確認しました。実機、V9938、別リビジョンの派生版は未確認です。
 
-[検証結果の詳細（JSON）](results.json) / [技術解説 PPTX（日本語）](technical-notes.ja.pptx) / [技術解説 PDF（日本語）](technical-notes.ja.pdf)
+[検証結果の詳細（JSON）](results.json) / [技術解説 PDF（日本語）](technical-notes.ja.pdf)
 
 ## C ソースと再ビルド
 
@@ -62,7 +73,7 @@ V9968 の COMPAT と通常 V9958 の速度は同一ではありません。比�
 powershell.exe -NoProfile -ExecutionPolicy Bypass -File demos\scene3-benchmark\build.ps1 -Z88dk "<z88dk のフォルダ>"
 ```
 
-main.c は SCENE3 のみを描画します。既存デモの v9968.c・mapper.c・platform.c・music.c と事前計算データを共用し、SCENE3_BENCHMARK 定義時だけ通常パレットと従来 VDP の起動処理を追加します。再ビルドは比較 ROM と rom.json を更新します。既存デモの ROM は更新しません。同梱の比較 ROM は掲載している測定値を取得した当のものです。results.json にそのハッシュを記録しています。現行ソースから再ビルドすると、共有コードとアセットも現在の内容を取り込むため、ハッシュの異なる ROM になります。再ビルド版の測定値は掲載していません。同梱 ROM のビルド元コミットとツールチェーンは記録していないため、再現を試みるのではなく、ROM と results.json の対を基準として扱ってください。
+main.cはデモと同じ最適化済みScene3処理を使います。再ビルド先はSCENE3-BENCHMARK-OPTIMIZED.romとrom-optimized.jsonです。公開済みの基準ROM・rom.json・results.jsonは変更しません。今回の測定はresults-optimized.jsonに分離しています。再ビルドしたROMの試験にはtest.ps1へ -Optimized を追加してください。省略時は公開済み基準ROMを使います。
 
 ```powershell
 powershell.exe -NoProfile -ExecutionPolicy Bypass -File demos\scene3-benchmark\test.ps1 -Runtime runtime\cbios
@@ -73,7 +84,7 @@ FS-A1GT は runtime\fsa1gt を指定します。テストは独立した test-ou
 
 ## 技術と出典
 
-背景・退避・帯転送は HMMM、ポリゴンの走査線は LMMV、左右端補完は LMMM。LRMM は使用しません。4ページを使用するため VRAM は128 KiBが必要です。3D の回転・投影は既存デモの事前計算テーブルを使用します。
+最適化版は部分的な背景復元と統合した水面帯にHMMM、統合した立体矩形にLMMV、左右端の正確な繰り返しにLMMMを使います。公開済み基準ROMは全面の背景・退避コピーと2行単位の帯転送を使います。LRMM は使用しません。4ページを使用するため VRAM は128 KiBが必要です。3D の回転・投影は既存デモの事前計算テーブルを使用します。
 
 - [派生版 VDP.hh](https://github.com/buppu3/openMSX/blob/d884c4b/src/video/VDP.hh)：R20 の HS=0x01、EPAL=0x10。
 - [派生版 VDP.cc](https://github.com/buppu3/openMSX/blob/d884c4b/src/video/VDP.cc)：拡張パレットは R/G/B の3バイト、通常パレットは RB/G の2バイト。
@@ -82,3 +93,5 @@ FS-A1GT は runtime\fsa1gt を指定します。テストは独立した test-ou
 - フォントは既存デモと同じ [MSX 8x8 font](../v9968-tech-demo/third-party/fonts/README.ja.md) を使用しています。作者に感謝します。利用条件と出典を同文書に記載しています。
 
 一次資料の確認日：2026-09-10。レジスター値は採用中の派生版向けであり、別実装へそのまま適用しないでください。
+
+最適化の技術解説：[PDF](scene3-optimization.ja.pdf)。

@@ -2,3 +2,6 @@ build/
 test-output/
 user/
 *.log
+
+# Isolated C-reference build output
+build-c/

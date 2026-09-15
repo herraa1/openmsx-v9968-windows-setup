@@ -4,6 +4,13 @@
 
 [Demo guide](README.md)
 
+## Scene 3 exact optimization
+
+`water_prepare(pose)` maintains clean background plus mesh on page 2. It restores only the previous mesh bbox from page 3, draws merged LMMV rectangles to page 2, or reuses it for an unchanged pose. `water_draw()` streams vertically merged HMMM runs with exact one-pixel LMMM edge repetition to the back page. It needs no full clear or capture. The source page stays immutable. Background and texture loads invalidate the cache.
+
+MESH keeps its 4096-byte stride, with bbox bytes at offset 4092. WATER keeps its 512-byte stride, with a count followed by five-byte sx/dx/width/sy/height records. IDENTITY is one run. The generator verifies original rasters and water rows. `test-water-work.ps1 -Runtime <runtime>` checks all poses, cache reuse and Scene 6 re-entry in VRAM. `-CStream` on build.ps1 selects the diagnostic C mesh, glow and water paths. [Stages, measurements and build/test instructions](../scene3-benchmark/OPTIMIZATION.md).
+
+
 ## Build
 
 Python 3 with Pillow and z88dk are required for rebuilding, not for normal setup or launch. Run in this directory:
@@ -34,7 +41,7 @@ The six strips are 54 of the 64 VRAM rows free above the background. LABELS keep
 
 ## Scene 6 feedback
 
-Scene 6 has two halves joined by a header reveal. It borrows VRAM page 2, the page that otherwise holds textures and the Scene 3 water capture; it clears the page on entry and calls `textures_load()` on exit, so no extra page is needed.
+Scene 6 has two halves joined by a header reveal. It borrows VRAM page 2, the page that otherwise holds textures and the Scene 3 water work surface; it clears the page on entry and calls `textures_load()` on exit, so no extra page is needed.
 
 Timing comes from the tick recorded when the scene is entered, not from the free-running clock, so the opening always plays from the start even when the scene is selected by hand. The first 180 ticks are the decay trail, drawn with no header, scene label or top rule. From tick 180 the header appears and stays, and the four feedback phases run 180 ticks each; while the scene is held by hand those four phases repeat and the header stays up. The hidden header is deliberate staging, not a regression: the second half draws exactly the HUD every other scene draws.
 
@@ -88,9 +95,9 @@ powershell.exe -NoProfile -ExecutionPolicy Bypass -File test-water.ps1 -Runtime 
 
 Use `cbios` instead for C-BIOS. `test.ps1` checks six scenes, keys 1/3/0/W/Esc, VDP faults, banking, backgrounds, the header of every scene pixel by pixel, that the Scene 3 header rows move with the water, and that the R20 probe selected the byte this fork needs. Scene 6 is selected with its key rather than by waiting for the automatic cycle: interrupts are disabled while drawing, so the tick clock drifts behind real time by an amount that differs between Z80 and R800. `test-water.ps1` compares identity and normal water distortion against an independent reference. `test-output/` may contain owned BIOS copies and is excluded from publication. Normal launch data uses `runtime/<mode>/user-tech-demo/<first 12 SHA-256 characters>/`.
 
-See [0.7.0 test results (JSON)](verification.json). Physical hardware, other emulators, sizes beyond 4 MiB, playback beyond 18 minutes and audio quality are untested. The 16-bit clock wraps at about 18 minutes. CPU/font identification does not guarantee every feature.
+See [Current development test results (JSON)](verification.json). Physical hardware, other emulators, sizes beyond 4 MiB, playback beyond 18 minutes and audio quality are untested. The 16-bit clock wraps at about 18 minutes. CPU/font identification does not guarantee every feature.
 
-W is keyboard matrix row 5, bit 4. Tests verify that Y has no effect, holding W does not toggle repeatedly, and releasing and pressing W again toggles back. At completed-frame boundaries, the rendered VRAM body must match the captured source when OFF and differ when ON. Input is injected into the emulator keyboard matrix; this is not a physical-keyboard test.
+W is keyboard matrix row 5, bit 4. Tests verify that Y has no effect, holding W does not toggle repeatedly, and releasing and pressing W again toggles back. At completed-frame boundaries, the rendered VRAM body must match the clean work surface when OFF and differ when ON. Input is injected into the emulator keyboard matrix; this is not a physical-keyboard test.
 
 ## References
 
@@ -110,3 +117,30 @@ python make-preview.py "test-output\run-folder\user\screenshots" water-preview.g
 Capture 16 actual Scene 3 frames from the current ROM, upscale 2× (640×480) with nearest-neighbor sampling, and loop at 130 ms per frame. The silent GIF is a roughly 2.08-second excerpt, not a measurement of demo FPS. Use `--scale 1` for native resolution.
 
 - [MSX Technical Data Book, section 1.3.5: keyboard matrix](https://map.grauw.nl/resources/system/msxtech.pdf) (2026-09-10)
+
+## Comparing the C and assembly implementations
+
+Define `V9968_SCENE3_C_STREAM` at build time to select C mesh, glow and water streaming in `v9968.c`. `build.ps1 -CStream` passes this definition. The C counterparts are compiled, executable alternatives next to their assembly implementations, rather than inactive `#if 0` examples.
+
+| Operation | C / assembly correspondence |
+| --- | --- |
+| CE wait | `wait_cmd()` ↔ `stream_wait()`: up to 65,535 polls, with the same fault action |
+| Mesh | Two `stream_mesh_page()` implementations: output 11 R36–R46 bytes, replacing destination page at byte 3 |
+| Glow | Two `stream_spans_glow()` implementations: replace destination page and color byte 8 with 15; retain dimensions and command |
+| Water | C `water_draw()` ↔ `stream_water_runs()`: submit the same main bands and repeated outermost pixels in the same order |
+
+Compare pixel output, destination pages and command effects for identical inputs. Execution time, instruction counts and interrupt positions differ. Because poses advance with time, individual animated frames need not match. The polling budget is equal, but elapsed timeout duration differs.
+
+Interrupt register saves and `RETI`, `DI/EI`, IM2 setup, atomic 16-bit clock reads and register-based BIOS calls retain dedicated low-level code. A simple C replacement could break the interrupt ABI or timing, so comments describe their C-level meaning. Bank switching includes its equivalent C memory write. These small pairs remain adjacent in one translation unit to preserve code placement and calling conventions.
+
+Run from the repository root. Replace `<z88dk>` and `<runtime>` with your actual folders.
+
+```powershell
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File demos/v9968-tech-demo/build.ps1 -Z88dk "<z88dk>" -CStream
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File demos/v9968-tech-demo/test.ps1 -Runtime "<runtime>" -CStream
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File demos/v9968-tech-demo/test-water.ps1 -Runtime "<runtime>" -CStream
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File demos/v9968-tech-demo/test-water-work.ps1 -Runtime "<runtime>" -CStream
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File demos/v9968-tech-demo/test-glow-stream.ps1 -Runtime "<runtime>" -CStream
+```
+
+C outputs go to `build-c/`; default outputs go to `build/`. C builds do not overwrite distributed ROMs or existing measurements. Omit `-CStream` to test the default. The glow fixture holds the scene clock while checking all 128 shapes on pages 0/1; it is not a performance test. See [C/ASM comparison results (JSON)](stream-verification.json) for both CPUs and implementations.

@@ -1,0 +1,2964 @@
+{
+  "date": "2026-09-14",
+  "status": "local optimization, not released",
+  "rom_sha256": "ce1504f2798d97ff56638db7f90ca72c79cdd8d14353d31d1ed97b61c39cc427",
+  "baseline_source_commit": "be3bfde39e8c6aca0a8d0d5281657018663736cf",
+  "historical_results_unchanged": true,
+  "host": "Windows 10 x64, PowerShell 5.1",
+  "emulator": "buppu3/openMSX d884c4b",
+  "fork_exe_sha256": "b5de3932c0e486002c2ca1fb0d858ad27fc10e97bc5a6b1b277f988f7b7454b9",
+  "toolchain": {
+    "zcc.exe": "f9b89c12c40edf613a3a44730690f3fe8f8a4c57bd858a9198da4e6a655bd44b",
+    "z88dk-zsdcc.exe": "29f3603c39b8a58b8b71e3de4b0485df3a1ec874a70ba721e3b17c7dffdde381"
+  },
+  "method": {
+    "vblank_hz": 60,
+    "sample_seconds": 15,
+    "windows_per_configuration": 3,
+    "aggregation": "sum(frames)*60/sum(elapsed_ticks)",
+    "host_timing": false,
+    "notes": "Three consecutive windows in one run, not independent-run confidence intervals. Each animated mode resets the pose epoch; poses sampled differ with frame rate. Fixed P mode reuses the cached geometry after optimization. HUD/BGM/VSync remain enabled. Intermediate AB/ABC benchmark inputs were already masked; the general demo parameter-mask bug was fixed before ABCD."
+  },
+  "stages": [
+    {
+      "stage": "baseline",
+      "rom_sha256": "b96e3b0f3999e97d8c2b5c2a724f77921e5bf419b8b0febba852be73e99421f8",
+      "demo_rom_sha256": "3ccfb3935ace118847855594754205fc6e471470a1aef682243b330107746bc6",
+      "samples": [
+        {
+          "machine": "cbios",
+          "cpu": "Z80",
+          "mode": "FULL",
+          "fixed_pose": false,
+          "repeat": 0,
+          "frames": 96,
+          "elapsed_ticks": 896,
+          "fps": 6.428571428571429
+        },
+        {
+          "machine": "cbios",
+          "cpu": "Z80",
+          "mode": "FULL",
+          "fixed_pose": false,
+          "repeat": 1,
+          "frames": 96,
+          "elapsed_ticks": 896,
+          "fps": 6.428571428571429
+        },
+        {
+          "machine": "cbios",
+          "cpu": "Z80",
+          "mode": "FULL",
+          "fixed_pose": false,
+          "repeat": 2,
+          "frames": 96,
+          "elapsed_ticks": 894,
+          "fps": 6.442953020134228
+        },
+        {
+          "machine": "cbios",
+          "cpu": "Z80",
+          "mode": "FAST",
+          "fixed_pose": false,
+          "repeat": 0,
+          "frames": 97,
+          "elapsed_ticks": 900,
+          "fps": 6.466666666666667
+        },
+        {
+          "machine": "cbios",
+          "cpu": "Z80",
+          "mode": "FAST",
+          "fixed_pose": false,
+          "repeat": 1,
+          "frames": 96,
+          "elapsed_ticks": 893,
+          "fps": 6.4501679731243
+        },
+        {
+          "machine": "cbios",
+          "cpu": "Z80",
+          "mode": "FAST",
+          "fixed_pose": false,
+          "repeat": 2,
+          "frames": 97,
+          "elapsed_ticks": 907,
+          "fps": 6.416758544652701
+        },
+        {
+          "machine": "cbios",
+          "cpu": "Z80",
+          "mode": "COMPAT",
+          "fixed_pose": false,
+          "repeat": 0,
+          "frames": 29,
+          "elapsed_ticks": 887,
+          "fps": 1.9616685456595264
+        },
+        {
+          "machine": "cbios",
+          "cpu": "Z80",
+          "mode": "COMPAT",
+          "fixed_pose": false,
+          "repeat": 1,
+          "frames": 30,
+          "elapsed_ticks": 922,
+          "fps": 1.9522776572668112
+        },
+        {
+          "machine": "cbios",
+          "cpu": "Z80",
+          "mode": "COMPAT",
+          "fixed_pose": false,
+          "repeat": 2,
+          "frames": 29,
+          "elapsed_ticks": 892,
+          "fps": 1.9506726457399104
+        },
+        {
+          "machine": "cbios",
+          "cpu": "Z80",
+          "mode": "FULL",
+          "fixed_pose": true,
+          "repeat": 0,
+          "frames": 90,
+          "elapsed_ticks": 900,
+          "fps": 6.0
+        },
+        {
+          "machine": "cbios",
+          "cpu": "Z80",
+          "mode": "FULL",
+          "fixed_pose": true,
+          "repeat": 1,
+          "frames": 90,
+          "elapsed_ticks": 900,
+          "fps": 6.0
+        },
+        {
+          "machine": "cbios",
+          "cpu": "Z80",
+          "mode": "FULL",
+          "fixed_pose": true,
+          "repeat": 2,
+          "frames": 89,
+          "elapsed_ticks": 890,
+          "fps": 6.0
+        },
+        {
+          "machine": "cbios",
+          "cpu": "Z80",
+          "mode": "FAST",
+          "fixed_pose": true,
+          "repeat": 0,
+          "frames": 90,
+          "elapsed_ticks": 900,
+          "fps": 6.0
+        },
+        {
+          "machine": "cbios",
+          "cpu": "Z80",
+          "mode": "FAST",
+          "fixed_pose": true,
+          "repeat": 1,
+          "frames": 90,
+          "elapsed_ticks": 900,
+          "fps": 6.0
+        },
+        {
+          "machine": "cbios",
+          "cpu": "Z80",
+          "mode": "FAST",
+          "fixed_pose": true,
+          "repeat": 2,
+          "frames": 90,
+          "elapsed_ticks": 900,
+          "fps": 6.0
+        },
+        {
+          "machine": "cbios",
+          "cpu": "Z80",
+          "mode": "COMPAT",
+          "fixed_pose": true,
+          "repeat": 0,
+          "frames": 29,
+          "elapsed_ticks": 899,
+          "fps": 1.935483870967742
+        },
+        {
+          "machine": "cbios",
+          "cpu": "Z80",
+          "mode": "COMPAT",
+          "fixed_pose": true,
+          "repeat": 1,
+          "frames": 29,
+          "elapsed_ticks": 899,
+          "fps": 1.935483870967742
+        },
+        {
+          "machine": "cbios",
+          "cpu": "Z80",
+          "mode": "COMPAT",
+          "fixed_pose": true,
+          "repeat": 2,
+          "frames": 29,
+          "elapsed_ticks": 899,
+          "fps": 1.935483870967742
+        },
+        {
+          "machine": "fsa1gt",
+          "cpu": "R800",
+          "mode": "FULL",
+          "fixed_pose": false,
+          "repeat": 0,
+          "frames": 123,
+          "elapsed_ticks": 896,
+          "fps": 8.236607142857142
+        },
+        {
+          "machine": "fsa1gt",
+          "cpu": "R800",
+          "mode": "FULL",
+          "fixed_pose": false,
+          "repeat": 1,
+          "frames": 124,
+          "elapsed_ticks": 900,
+          "fps": 8.266666666666667
+        },
+        {
+          "machine": "fsa1gt",
+          "cpu": "R800",
+          "mode": "FULL",
+          "fixed_pose": false,
+          "repeat": 2,
+          "frames": 124,
+          "elapsed_ticks": 904,
+          "fps": 8.230088495575222
+        },
+        {
+          "machine": "fsa1gt",
+          "cpu": "R800",
+          "mode": "FAST",
+          "fixed_pose": false,
+          "repeat": 0,
+          "frames": 125,
+          "elapsed_ticks": 901,
+          "fps": 8.32408435072142
+        },
+        {
+          "machine": "fsa1gt",
+          "cpu": "R800",
+          "mode": "FAST",
+          "fixed_pose": false,
+          "repeat": 1,
+          "frames": 124,
+          "elapsed_ticks": 893,
+          "fps": 8.331466965285554
+        },
+        {
+          "machine": "fsa1gt",
+          "cpu": "R800",
+          "mode": "FAST",
+          "fixed_pose": false,
+          "repeat": 2,
+          "frames": 125,
+          "elapsed_ticks": 904,
+          "fps": 8.29646017699115
+        },
+        {
+          "machine": "fsa1gt",
+          "cpu": "R800",
+          "mode": "COMPAT",
+          "fixed_pose": false,
+          "repeat": 0,
+          "frames": 31,
+          "elapsed_ticks": 889,
+          "fps": 2.092238470191226
+        },
+        {
+          "machine": "fsa1gt",
+          "cpu": "R800",
+          "mode": "COMPAT",
+          "fixed_pose": false,
+          "repeat": 1,
+          "frames": 31,
+          "elapsed_ticks": 897,
+          "fps": 2.0735785953177257
+        },
+        {
+          "machine": "fsa1gt",
+          "cpu": "R800",
+          "mode": "COMPAT",
+          "fixed_pose": false,
+          "repeat": 2,
+          "frames": 31,
+          "elapsed_ticks": 888,
+          "fps": 2.0945945945945947
+        },
+        {
+          "machine": "fsa1gt",
+          "cpu": "R800",
+          "mode": "FULL",
+          "fixed_pose": true,
+          "repeat": 0,
+          "frames": 112,
+          "elapsed_ticks": 896,
+          "fps": 7.5
+        },
+        {
+          "machine": "fsa1gt",
+          "cpu": "R800",
+          "mode": "FULL",
+          "fixed_pose": true,
+          "repeat": 1,
+          "frames": 112,
+          "elapsed_ticks": 896,
+          "fps": 7.5
+        },
+        {
+          "machine": "fsa1gt",
+          "cpu": "R800",
+          "mode": "FULL",
+          "fixed_pose": true,
+          "repeat": 2,
+          "frames": 113,
+          "elapsed_ticks": 904,
+          "fps": 7.5
+        },
+        {
+          "machine": "fsa1gt",
+          "cpu": "R800",
+          "mode": "FAST",
+          "fixed_pose": true,
+          "repeat": 0,
+          "frames": 112,
+          "elapsed_ticks": 896,
+          "fps": 7.5
+        },
+        {
+          "machine": "fsa1gt",
+          "cpu": "R800",
+          "mode": "FAST",
+          "fixed_pose": true,
+          "repeat": 1,
+          "frames": 113,
+          "elapsed_ticks": 904,
+          "fps": 7.5
+        },
+        {
+          "machine": "fsa1gt",
+          "cpu": "R800",
+          "mode": "FAST",
+          "fixed_pose": true,
+          "repeat": 2,
+          "frames": 113,
+          "elapsed_ticks": 904,
+          "fps": 7.5
+        },
+        {
+          "machine": "fsa1gt",
+          "cpu": "R800",
+          "mode": "COMPAT",
+          "fixed_pose": true,
+          "repeat": 0,
+          "frames": 31,
+          "elapsed_ticks": 899,
+          "fps": 2.0689655172413794
+        },
+        {
+          "machine": "fsa1gt",
+          "cpu": "R800",
+          "mode": "COMPAT",
+          "fixed_pose": true,
+          "repeat": 1,
+          "frames": 31,
+          "elapsed_ticks": 899,
+          "fps": 2.0689655172413794
+        },
+        {
+          "machine": "fsa1gt",
+          "cpu": "R800",
+          "mode": "COMPAT",
+          "fixed_pose": true,
+          "repeat": 2,
+          "frames": 31,
+          "elapsed_ticks": 899,
+          "fps": 2.0689655172413794
+        }
+      ],
+      "summary": [
+        {
+          "machine": "cbios",
+          "mode": "FULL",
+          "fixed_pose": false,
+          "frames": 288,
+          "elapsed_ticks": 2686,
+          "fps": 6.433358153387937,
+          "minimum_fps": 6.428571428571429,
+          "maximum_fps": 6.442953020134228
+        },
+        {
+          "machine": "cbios",
+          "mode": "FULL",
+          "fixed_pose": true,
+          "frames": 269,
+          "elapsed_ticks": 2690,
+          "fps": 6.0,
+          "minimum_fps": 6.0,
+          "maximum_fps": 6.0
+        },
+        {
+          "machine": "cbios",
+          "mode": "FAST",
+          "fixed_pose": false,
+          "frames": 290,
+          "elapsed_ticks": 2700,
+          "fps": 6.444444444444445,
+          "minimum_fps": 6.416758544652701,
+          "maximum_fps": 6.466666666666667
+        },
+        {
+          "machine": "cbios",
+          "mode": "FAST",
+          "fixed_pose": true,
+          "frames": 270,
+          "elapsed_ticks": 2700,
+          "fps": 6.0,
+          "minimum_fps": 6.0,
+          "maximum_fps": 6.0
+        },
+        {
+          "machine": "cbios",
+          "mode": "COMPAT",
+          "fixed_pose": false,
+          "frames": 88,
+          "elapsed_ticks": 2701,
+          "fps": 1.9548315438726398,
+          "minimum_fps": 1.9506726457399104,
+          "maximum_fps": 1.9616685456595264
+        },
+        {
+          "machine": "cbios",
+          "mode": "COMPAT",
+          "fixed_pose": true,
+          "frames": 87,
+          "elapsed_ticks": 2697,
+          "fps": 1.935483870967742,
+          "minimum_fps": 1.935483870967742,
+          "maximum_fps": 1.935483870967742
+        },
+        {
+          "machine": "fsa1gt",
+          "mode": "FULL",
+          "fixed_pose": false,
+          "frames": 371,
+          "elapsed_ticks": 2700,
+          "fps": 8.244444444444444,
+          "minimum_fps": 8.230088495575222,
+          "maximum_fps": 8.266666666666667
+        },
+        {
+          "machine": "fsa1gt",
+          "mode": "FULL",
+          "fixed_pose": true,
+          "frames": 337,
+          "elapsed_ticks": 2696,
+          "fps": 7.5,
+          "minimum_fps": 7.5,
+          "maximum_fps": 7.5
+        },
+        {
+          "machine": "fsa1gt",
+          "mode": "FAST",
+          "fixed_pose": false,
+          "frames": 374,
+          "elapsed_ticks": 2698,
+          "fps": 8.31727205337287,
+          "minimum_fps": 8.29646017699115,
+          "maximum_fps": 8.331466965285554
+        },
+        {
+          "machine": "fsa1gt",
+          "mode": "FAST",
+          "fixed_pose": true,
+          "frames": 338,
+          "elapsed_ticks": 2704,
+          "fps": 7.5,
+          "minimum_fps": 7.5,
+          "maximum_fps": 7.5
+        },
+        {
+          "machine": "fsa1gt",
+          "mode": "COMPAT",
+          "fixed_pose": false,
+          "frames": 93,
+          "elapsed_ticks": 2674,
+          "fps": 2.086761406133134,
+          "minimum_fps": 2.0735785953177257,
+          "maximum_fps": 2.0945945945945947
+        },
+        {
+          "machine": "fsa1gt",
+          "mode": "COMPAT",
+          "fixed_pose": true,
+          "frames": 93,
+          "elapsed_ticks": 2697,
+          "fps": 2.0689655172413794,
+          "minimum_fps": 2.0689655172413794,
+          "maximum_fps": 2.0689655172413794
+        }
+      ]
+    },
+    {
+      "stage": "A",
+      "rom_sha256": "0a85dc49e572cecf22a1b54d645f977e1ce1b0748ae49dad373a8d0ede2f5a47",
+      "demo_rom_sha256": "4c004248b3fafce3ba9864e0d03443b9cafbd462fe5be6ff0cf2350eae3d06a0",
+      "samples": [
+        {
+          "machine": "cbios",
+          "cpu": "Z80",
+          "mode": "FULL",
+          "fixed_pose": false,
+          "repeat": 0,
+          "frames": 98,
+          "elapsed_ticks": 899,
+          "fps": 6.540600667408231
+        },
+        {
+          "machine": "cbios",
+          "cpu": "Z80",
+          "mode": "FULL",
+          "fixed_pose": false,
+          "repeat": 1,
+          "frames": 98,
+          "elapsed_ticks": 899,
+          "fps": 6.540600667408231
+        },
+        {
+          "machine": "cbios",
+          "cpu": "Z80",
+          "mode": "FULL",
+          "fixed_pose": false,
+          "repeat": 2,
+          "frames": 99,
+          "elapsed_ticks": 905,
+          "fps": 6.56353591160221
+        },
+        {
+          "machine": "cbios",
+          "cpu": "Z80",
+          "mode": "FAST",
+          "fixed_pose": false,
+          "repeat": 0,
+          "frames": 98,
+          "elapsed_ticks": 901,
+          "fps": 6.526082130965594
+        },
+        {
+          "machine": "cbios",
+          "cpu": "Z80",
+          "mode": "FAST",
+          "fixed_pose": false,
+          "repeat": 1,
+          "frames": 97,
+          "elapsed_ticks": 893,
+          "fps": 6.517357222844345
+        },
+        {
+          "machine": "cbios",
+          "cpu": "Z80",
+          "mode": "FAST",
+          "fixed_pose": false,
+          "repeat": 2,
+          "frames": 98,
+          "elapsed_ticks": 899,
+          "fps": 6.540600667408231
+        },
+        {
+          "machine": "cbios",
+          "cpu": "Z80",
+          "mode": "COMPAT",
+          "fixed_pose": false,
+          "repeat": 0,
+          "frames": 32,
+          "elapsed_ticks": 894,
+          "fps": 2.1476510067114094
+        },
+        {
+          "machine": "cbios",
+          "cpu": "Z80",
+          "mode": "COMPAT",
+          "fixed_pose": false,
+          "repeat": 1,
+          "frames": 32,
+          "elapsed_ticks": 891,
+          "fps": 2.154882154882155
+        },
+        {
+          "machine": "cbios",
+          "cpu": "Z80",
+          "mode": "COMPAT",
+          "fixed_pose": false,
+          "repeat": 2,
+          "frames": 33,
+          "elapsed_ticks": 920,
+          "fps": 2.152173913043478
+        },
+        {
+          "machine": "cbios",
+          "cpu": "Z80",
+          "mode": "FULL",
+          "fixed_pose": true,
+          "repeat": 0,
+          "frames": 89,
+          "elapsed_ticks": 890,
+          "fps": 6.0
+        },
+        {
+          "machine": "cbios",
+          "cpu": "Z80",
+          "mode": "FULL",
+          "fixed_pose": true,
+          "repeat": 1,
+          "frames": 90,
+          "elapsed_ticks": 900,
+          "fps": 6.0
+        },
+        {
+          "machine": "cbios",
+          "cpu": "Z80",
+          "mode": "FULL",
+          "fixed_pose": true,
+          "repeat": 2,
+          "frames": 90,
+          "elapsed_ticks": 900,
+          "fps": 6.0
+        },
+        {
+          "machine": "cbios",
+          "cpu": "Z80",
+          "mode": "FAST",
+          "fixed_pose": true,
+          "repeat": 0,
+          "frames": 90,
+          "elapsed_ticks": 900,
+          "fps": 6.0
+        },
+        {
+          "machine": "cbios",
+          "cpu": "Z80",
+          "mode": "FAST",
+          "fixed_pose": true,
+          "repeat": 1,
+          "frames": 90,
+          "elapsed_ticks": 900,
+          "fps": 6.0
+        },
+        {
+          "machine": "cbios",
+          "cpu": "Z80",
+          "mode": "FAST",
+          "fixed_pose": true,
+          "repeat": 2,
+          "frames": 90,
+          "elapsed_ticks": 900,
+          "fps": 6.0
+        },
+        {
+          "machine": "cbios",
+          "cpu": "Z80",
+          "mode": "COMPAT",
+          "fixed_pose": true,
+          "repeat": 0,
+          "frames": 32,
+          "elapsed_ticks": 896,
+          "fps": 2.142857142857143
+        },
+        {
+          "machine": "cbios",
+          "cpu": "Z80",
+          "mode": "COMPAT",
+          "fixed_pose": true,
+          "repeat": 1,
+          "frames": 32,
+          "elapsed_ticks": 896,
+          "fps": 2.142857142857143
+        },
+        {
+          "machine": "cbios",
+          "cpu": "Z80",
+          "mode": "COMPAT",
+          "fixed_pose": true,
+          "repeat": 2,
+          "frames": 32,
+          "elapsed_ticks": 896,
+          "fps": 2.142857142857143
+        },
+        {
+          "machine": "fsa1gt",
+          "cpu": "R800",
+          "mode": "FULL",
+          "fixed_pose": false,
+          "repeat": 0,
+          "frames": 127,
+          "elapsed_ticks": 896,
+          "fps": 8.504464285714286
+        },
+        {
+          "machine": "fsa1gt",
+          "cpu": "R800",
+          "mode": "FULL",
+          "fixed_pose": false,
+          "repeat": 1,
+          "frames": 127,
+          "elapsed_ticks": 893,
+          "fps": 8.533034714445689
+        },
+        {
+          "machine": "fsa1gt",
+          "cpu": "R800",
+          "mode": "FULL",
+          "fixed_pose": false,
+          "repeat": 2,
+          "frames": 128,
+          "elapsed_ticks": 895,
+          "fps": 8.581005586592179
+        },
+        {
+          "machine": "fsa1gt",
+          "cpu": "R800",
+          "mode": "FAST",
+          "fixed_pose": false,
+          "repeat": 0,
+          "frames": 128,
+          "elapsed_ticks": 901,
+          "fps": 8.523862375138735
+        },
+        {
+          "machine": "fsa1gt",
+          "cpu": "R800",
+          "mode": "FAST",
+          "fixed_pose": false,
+          "repeat": 1,
+          "frames": 129,
+          "elapsed_ticks": 902,
+          "fps": 8.580931263858092
+        },
+        {
+          "machine": "fsa1gt",
+          "cpu": "R800",
+          "mode": "FAST",
+          "fixed_pose": false,
+          "repeat": 2,
+          "frames": 127,
+          "elapsed_ticks": 896,
+          "fps": 8.504464285714286
+        },
+        {
+          "machine": "fsa1gt",
+          "cpu": "R800",
+          "mode": "COMPAT",
+          "fixed_pose": false,
+          "repeat": 0,
+          "frames": 35,
+          "elapsed_ticks": 908,
+          "fps": 2.3127753303964758
+        },
+        {
+          "machine": "fsa1gt",
+          "cpu": "R800",
+          "mode": "COMPAT",
+          "fixed_pose": false,
+          "repeat": 1,
+          "frames": 35,
+          "elapsed_ticks": 909,
+          "fps": 2.31023102310231
+        },
+        {
+          "machine": "fsa1gt",
+          "cpu": "R800",
+          "mode": "COMPAT",
+          "fixed_pose": false,
+          "repeat": 2,
+          "frames": 34,
+          "elapsed_ticks": 885,
+          "fps": 2.305084745762712
+        },
+        {
+          "machine": "fsa1gt",
+          "cpu": "R800",
+          "mode": "FULL",
+          "fixed_pose": true,
+          "repeat": 0,
+          "frames": 112,
+          "elapsed_ticks": 896,
+          "fps": 7.5
+        },
+        {
+          "machine": "fsa1gt",
+          "cpu": "R800",
+          "mode": "FULL",
+          "fixed_pose": true,
+          "repeat": 1,
+          "frames": 112,
+          "elapsed_ticks": 896,
+          "fps": 7.5
+        },
+        {
+          "machine": "fsa1gt",
+          "cpu": "R800",
+          "mode": "FULL",
+          "fixed_pose": true,
+          "repeat": 2,
+          "frames": 112,
+          "elapsed_ticks": 896,
+          "fps": 7.5
+        },
+        {
+          "machine": "fsa1gt",
+          "cpu": "R800",
+          "mode": "FAST",
+          "fixed_pose": true,
+          "repeat": 0,
+          "frames": 112,
+          "elapsed_ticks": 895,
+          "fps": 7.5083798882681565
+        },
+        {
+          "machine": "fsa1gt",
+          "cpu": "R800",
+          "mode": "FAST",
+          "fixed_pose": true,
+          "repeat": 1,
+          "frames": 112,
+          "elapsed_ticks": 896,
+          "fps": 7.5
+        },
+        {
+          "machine": "fsa1gt",
+          "cpu": "R800",
+          "mode": "FAST",
+          "fixed_pose": true,
+          "repeat": 2,
+          "frames": 112,
+          "elapsed_ticks": 896,
+          "fps": 7.5
+        },
+        {
+          "machine": "fsa1gt",
+          "cpu": "R800",
+          "mode": "COMPAT",
+          "fixed_pose": true,
+          "repeat": 0,
+          "frames": 35,
+          "elapsed_ticks": 910,
+          "fps": 2.3076923076923075
+        },
+        {
+          "machine": "fsa1gt",
+          "cpu": "R800",
+          "mode": "COMPAT",
+          "fixed_pose": true,
+          "repeat": 1,
+          "frames": 35,
+          "elapsed_ticks": 910,
+          "fps": 2.3076923076923075
+        },
+        {
+          "machine": "fsa1gt",
+          "cpu": "R800",
+          "mode": "COMPAT",
+          "fixed_pose": true,
+          "repeat": 2,
+          "frames": 35,
+          "elapsed_ticks": 910,
+          "fps": 2.3076923076923075
+        }
+      ],
+      "summary": [
+        {
+          "machine": "cbios",
+          "mode": "FULL",
+          "fixed_pose": false,
+          "frames": 295,
+          "elapsed_ticks": 2703,
+          "fps": 6.548279689234184,
+          "minimum_fps": 6.540600667408231,
+          "maximum_fps": 6.56353591160221
+        },
+        {
+          "machine": "cbios",
+          "mode": "FULL",
+          "fixed_pose": true,
+          "frames": 269,
+          "elapsed_ticks": 2690,
+          "fps": 6.0,
+          "minimum_fps": 6.0,
+          "maximum_fps": 6.0
+        },
+        {
+          "machine": "cbios",
+          "mode": "FAST",
+          "fixed_pose": false,
+          "frames": 293,
+          "elapsed_ticks": 2693,
+          "fps": 6.5280356479762345,
+          "minimum_fps": 6.517357222844345,
+          "maximum_fps": 6.540600667408231
+        },
+        {
+          "machine": "cbios",
+          "mode": "FAST",
+          "fixed_pose": true,
+          "frames": 270,
+          "elapsed_ticks": 2700,
+          "fps": 6.0,
+          "minimum_fps": 6.0,
+          "maximum_fps": 6.0
+        },
+        {
+          "machine": "cbios",
+          "mode": "COMPAT",
+          "fixed_pose": false,
+          "frames": 97,
+          "elapsed_ticks": 2705,
+          "fps": 2.1515711645101665,
+          "minimum_fps": 2.1476510067114094,
+          "maximum_fps": 2.154882154882155
+        },
+        {
+          "machine": "cbios",
+          "mode": "COMPAT",
+          "fixed_pose": true,
+          "frames": 96,
+          "elapsed_ticks": 2688,
+          "fps": 2.142857142857143,
+          "minimum_fps": 2.142857142857143,
+          "maximum_fps": 2.142857142857143
+        },
+        {
+          "machine": "fsa1gt",
+          "mode": "FULL",
+          "fixed_pose": false,
+          "frames": 382,
+          "elapsed_ticks": 2684,
+          "fps": 8.539493293591654,
+          "minimum_fps": 8.504464285714286,
+          "maximum_fps": 8.581005586592179
+        },
+        {
+          "machine": "fsa1gt",
+          "mode": "FULL",
+          "fixed_pose": true,
+          "frames": 336,
+          "elapsed_ticks": 2688,
+          "fps": 7.5,
+          "minimum_fps": 7.5,
+          "maximum_fps": 7.5
+        },
+        {
+          "machine": "fsa1gt",
+          "mode": "FAST",
+          "fixed_pose": false,
+          "frames": 384,
+          "elapsed_ticks": 2699,
+          "fps": 8.536494998147463,
+          "minimum_fps": 8.504464285714286,
+          "maximum_fps": 8.580931263858092
+        },
+        {
+          "machine": "fsa1gt",
+          "mode": "FAST",
+          "fixed_pose": true,
+          "frames": 336,
+          "elapsed_ticks": 2687,
+          "fps": 7.502791216970599,
+          "minimum_fps": 7.5,
+          "maximum_fps": 7.5083798882681565
+        },
+        {
+          "machine": "fsa1gt",
+          "mode": "COMPAT",
+          "fixed_pose": false,
+          "frames": 104,
+          "elapsed_ticks": 2702,
+          "fps": 2.30940044411547,
+          "minimum_fps": 2.305084745762712,
+          "maximum_fps": 2.3127753303964758
+        },
+        {
+          "machine": "fsa1gt",
+          "mode": "COMPAT",
+          "fixed_pose": true,
+          "frames": 105,
+          "elapsed_ticks": 2730,
+          "fps": 2.3076923076923075,
+          "minimum_fps": 2.3076923076923075,
+          "maximum_fps": 2.3076923076923075
+        }
+      ]
+    },
+    {
+      "stage": "AB",
+      "rom_sha256": "2e383b4bea5523f8c1aa93b4d3857197542fc56b4dfb76e29a9924bb530a1ff2",
+      "demo_rom_sha256": "191527ae1aa97434a6617c195c202e149350a49ba5a80d402bac475fe0eae0a0",
+      "samples": [
+        {
+          "machine": "cbios",
+          "cpu": "Z80",
+          "mode": "FULL",
+          "fixed_pose": false,
+          "repeat": 0,
+          "frames": 101,
+          "elapsed_ticks": 902,
+          "fps": 6.718403547671841
+        },
+        {
+          "machine": "cbios",
+          "cpu": "Z80",
+          "mode": "FULL",
+          "fixed_pose": false,
+          "repeat": 1,
+          "frames": 100,
+          "elapsed_ticks": 896,
+          "fps": 6.696428571428571
+        },
+        {
+          "machine": "cbios",
+          "cpu": "Z80",
+          "mode": "FULL",
+          "fixed_pose": false,
+          "repeat": 2,
+          "frames": 101,
+          "elapsed_ticks": 900,
+          "fps": 6.733333333333333
+        },
+        {
+          "machine": "cbios",
+          "cpu": "Z80",
+          "mode": "FAST",
+          "fixed_pose": false,
+          "repeat": 0,
+          "frames": 101,
+          "elapsed_ticks": 903,
+          "fps": 6.710963455149502
+        },
+        {
+          "machine": "cbios",
+          "cpu": "Z80",
+          "mode": "FAST",
+          "fixed_pose": false,
+          "repeat": 1,
+          "frames": 101,
+          "elapsed_ticks": 899,
+          "fps": 6.740823136818688
+        },
+        {
+          "machine": "cbios",
+          "cpu": "Z80",
+          "mode": "FAST",
+          "fixed_pose": false,
+          "repeat": 2,
+          "frames": 100,
+          "elapsed_ticks": 894,
+          "fps": 6.7114093959731544
+        },
+        {
+          "machine": "cbios",
+          "cpu": "Z80",
+          "mode": "COMPAT",
+          "fixed_pose": false,
+          "repeat": 0,
+          "frames": 49,
+          "elapsed_ticks": 901,
+          "fps": 3.263041065482797
+        },
+        {
+          "machine": "cbios",
+          "cpu": "Z80",
+          "mode": "COMPAT",
+          "fixed_pose": false,
+          "repeat": 1,
+          "frames": 49,
+          "elapsed_ticks": 895,
+          "fps": 3.2849162011173183
+        },
+        {
+          "machine": "cbios",
+          "cpu": "Z80",
+          "mode": "COMPAT",
+          "fixed_pose": false,
+          "repeat": 2,
+          "frames": 49,
+          "elapsed_ticks": 899,
+          "fps": 3.2703003337041157
+        },
+        {
+          "machine": "cbios",
+          "cpu": "Z80",
+          "mode": "FULL",
+          "fixed_pose": true,
+          "repeat": 0,
+          "frames": 146,
+          "elapsed_ticks": 899,
+          "fps": 9.744160177975528
+        },
+        {
+          "machine": "cbios",
+          "cpu": "Z80",
+          "mode": "FULL",
+          "fixed_pose": true,
+          "repeat": 1,
+          "frames": 144,
+          "elapsed_ticks": 903,
+          "fps": 9.56810631229236
+        },
+        {
+          "machine": "cbios",
+          "cpu": "Z80",
+          "mode": "FULL",
+          "fixed_pose": true,
+          "repeat": 2,
+          "frames": 144,
+          "elapsed_ticks": 903,
+          "fps": 9.56810631229236
+        },
+        {
+          "machine": "cbios",
+          "cpu": "Z80",
+          "mode": "FAST",
+          "fixed_pose": true,
+          "repeat": 0,
+          "frames": 149,
+          "elapsed_ticks": 901,
+          "fps": 9.922308546059934
+        },
+        {
+          "machine": "cbios",
+          "cpu": "Z80",
+          "mode": "FAST",
+          "fixed_pose": true,
+          "repeat": 1,
+          "frames": 149,
+          "elapsed_ticks": 901,
+          "fps": 9.922308546059934
+        },
+        {
+          "machine": "cbios",
+          "cpu": "Z80",
+          "mode": "FAST",
+          "fixed_pose": true,
+          "repeat": 2,
+          "frames": 143,
+          "elapsed_ticks": 897,
+          "fps": 9.565217391304348
+        },
+        {
+          "machine": "cbios",
+          "cpu": "Z80",
+          "mode": "COMPAT",
+          "fixed_pose": true,
+          "repeat": 0,
+          "frames": 70,
+          "elapsed_ticks": 896,
+          "fps": 4.6875
+        },
+        {
+          "machine": "cbios",
+          "cpu": "Z80",
+          "mode": "COMPAT",
+          "fixed_pose": true,
+          "repeat": 1,
+          "frames": 70,
+          "elapsed_ticks": 896,
+          "fps": 4.6875
+        },
+        {
+          "machine": "cbios",
+          "cpu": "Z80",
+          "mode": "COMPAT",
+          "fixed_pose": true,
+          "repeat": 2,
+          "frames": 70,
+          "elapsed_ticks": 896,
+          "fps": 4.6875
+        },
+        {
+          "machine": "fsa1gt",
+          "cpu": "R800",
+          "mode": "FULL",
+          "fixed_pose": false,
+          "repeat": 0,
+          "frames": 133,
+          "elapsed_ticks": 900,
+          "fps": 8.866666666666667
+        },
+        {
+          "machine": "fsa1gt",
+          "cpu": "R800",
+          "mode": "FULL",
+          "fixed_pose": false,
+          "repeat": 1,
+          "frames": 132,
+          "elapsed_ticks": 894,
+          "fps": 8.859060402684564
+        },
+        {
+          "machine": "fsa1gt",
+          "cpu": "R800",
+          "mode": "FULL",
+          "fixed_pose": false,
+          "repeat": 2,
+          "frames": 133,
+          "elapsed_ticks": 899,
+          "fps": 8.876529477196886
+        },
+        {
+          "machine": "fsa1gt",
+          "cpu": "R800",
+          "mode": "FAST",
+          "fixed_pose": false,
+          "repeat": 0,
+          "frames": 133,
+          "elapsed_ticks": 897,
+          "fps": 8.896321070234114
+        },
+        {
+          "machine": "fsa1gt",
+          "cpu": "R800",
+          "mode": "FAST",
+          "fixed_pose": false,
+          "repeat": 1,
+          "frames": 133,
+          "elapsed_ticks": 899,
+          "fps": 8.876529477196886
+        },
+        {
+          "machine": "fsa1gt",
+          "cpu": "R800",
+          "mode": "FAST",
+          "fixed_pose": false,
+          "repeat": 2,
+          "frames": 132,
+          "elapsed_ticks": 893,
+          "fps": 8.868980963045912
+        },
+        {
+          "machine": "fsa1gt",
+          "cpu": "R800",
+          "mode": "COMPAT",
+          "fixed_pose": false,
+          "repeat": 0,
+          "frames": 55,
+          "elapsed_ticks": 896,
+          "fps": 3.6830357142857144
+        },
+        {
+          "machine": "fsa1gt",
+          "cpu": "R800",
+          "mode": "COMPAT",
+          "fixed_pose": false,
+          "repeat": 1,
+          "frames": 55,
+          "elapsed_ticks": 897,
+          "fps": 3.678929765886288
+        },
+        {
+          "machine": "fsa1gt",
+          "cpu": "R800",
+          "mode": "COMPAT",
+          "fixed_pose": false,
+          "repeat": 2,
+          "frames": 55,
+          "elapsed_ticks": 901,
+          "fps": 3.662597114317425
+        },
+        {
+          "machine": "fsa1gt",
+          "cpu": "R800",
+          "mode": "FULL",
+          "fixed_pose": true,
+          "repeat": 0,
+          "frames": 180,
+          "elapsed_ticks": 900,
+          "fps": 12.0
+        },
+        {
+          "machine": "fsa1gt",
+          "cpu": "R800",
+          "mode": "FULL",
+          "fixed_pose": true,
+          "repeat": 1,
+          "frames": 179,
+          "elapsed_ticks": 895,
+          "fps": 12.0
+        },
+        {
+          "machine": "fsa1gt",
+          "cpu": "R800",
+          "mode": "FULL",
+          "fixed_pose": true,
+          "repeat": 2,
+          "frames": 180,
+          "elapsed_ticks": 900,
+          "fps": 12.0
+        },
+        {
+          "machine": "fsa1gt",
+          "cpu": "R800",
+          "mode": "FAST",
+          "fixed_pose": true,
+          "repeat": 0,
+          "frames": 180,
+          "elapsed_ticks": 900,
+          "fps": 12.0
+        },
+        {
+          "machine": "fsa1gt",
+          "cpu": "R800",
+          "mode": "FAST",
+          "fixed_pose": true,
+          "repeat": 1,
+          "frames": 179,
+          "elapsed_ticks": 895,
+          "fps": 12.0
+        },
+        {
+          "machine": "fsa1gt",
+          "cpu": "R800",
+          "mode": "FAST",
+          "fixed_pose": true,
+          "repeat": 2,
+          "frames": 180,
+          "elapsed_ticks": 900,
+          "fps": 12.0
+        },
+        {
+          "machine": "fsa1gt",
+          "cpu": "R800",
+          "mode": "COMPAT",
+          "fixed_pose": true,
+          "repeat": 0,
+          "frames": 81,
+          "elapsed_ticks": 891,
+          "fps": 5.454545454545454
+        },
+        {
+          "machine": "fsa1gt",
+          "cpu": "R800",
+          "mode": "COMPAT",
+          "fixed_pose": true,
+          "repeat": 1,
+          "frames": 81,
+          "elapsed_ticks": 891,
+          "fps": 5.454545454545454
+        },
+        {
+          "machine": "fsa1gt",
+          "cpu": "R800",
+          "mode": "COMPAT",
+          "fixed_pose": true,
+          "repeat": 2,
+          "frames": 82,
+          "elapsed_ticks": 902,
+          "fps": 5.454545454545454
+        }
+      ],
+      "summary": [
+        {
+          "machine": "cbios",
+          "mode": "FULL",
+          "fixed_pose": false,
+          "frames": 302,
+          "elapsed_ticks": 2698,
+          "fps": 6.716085989621942,
+          "minimum_fps": 6.696428571428571,
+          "maximum_fps": 6.733333333333333
+        },
+        {
+          "machine": "cbios",
+          "mode": "FULL",
+          "fixed_pose": true,
+          "frames": 434,
+          "elapsed_ticks": 2705,
+          "fps": 9.626617375231053,
+          "minimum_fps": 9.56810631229236,
+          "maximum_fps": 9.744160177975528
+        },
+        {
+          "machine": "cbios",
+          "mode": "FAST",
+          "fixed_pose": false,
+          "frames": 302,
+          "elapsed_ticks": 2696,
+          "fps": 6.721068249258161,
+          "minimum_fps": 6.710963455149502,
+          "maximum_fps": 6.740823136818688
+        },
+        {
+          "machine": "cbios",
+          "mode": "FAST",
+          "fixed_pose": true,
+          "frames": 441,
+          "elapsed_ticks": 2699,
+          "fps": 9.803630974434975,
+          "minimum_fps": 9.565217391304348,
+          "maximum_fps": 9.922308546059934
+        },
+        {
+          "machine": "cbios",
+          "mode": "COMPAT",
+          "fixed_pose": false,
+          "frames": 147,
+          "elapsed_ticks": 2695,
+          "fps": 3.272727272727273,
+          "minimum_fps": 3.263041065482797,
+          "maximum_fps": 3.2849162011173183
+        },
+        {
+          "machine": "cbios",
+          "mode": "COMPAT",
+          "fixed_pose": true,
+          "frames": 210,
+          "elapsed_ticks": 2688,
+          "fps": 4.6875,
+          "minimum_fps": 4.6875,
+          "maximum_fps": 4.6875
+        },
+        {
+          "machine": "fsa1gt",
+          "mode": "FULL",
+          "fixed_pose": false,
+          "frames": 398,
+          "elapsed_ticks": 2693,
+          "fps": 8.867434088377275,
+          "minimum_fps": 8.859060402684564,
+          "maximum_fps": 8.876529477196886
+        },
+        {
+          "machine": "fsa1gt",
+          "mode": "FULL",
+          "fixed_pose": true,
+          "frames": 539,
+          "elapsed_ticks": 2695,
+          "fps": 12.0,
+          "minimum_fps": 12.0,
+          "maximum_fps": 12.0
+        },
+        {
+          "machine": "fsa1gt",
+          "mode": "FAST",
+          "fixed_pose": false,
+          "frames": 398,
+          "elapsed_ticks": 2689,
+          "fps": 8.880624767571588,
+          "minimum_fps": 8.868980963045912,
+          "maximum_fps": 8.896321070234114
+        },
+        {
+          "machine": "fsa1gt",
+          "mode": "FAST",
+          "fixed_pose": true,
+          "frames": 539,
+          "elapsed_ticks": 2695,
+          "fps": 12.0,
+          "minimum_fps": 12.0,
+          "maximum_fps": 12.0
+        },
+        {
+          "machine": "fsa1gt",
+          "mode": "COMPAT",
+          "fixed_pose": false,
+          "frames": 165,
+          "elapsed_ticks": 2694,
+          "fps": 3.6748329621380846,
+          "minimum_fps": 3.662597114317425,
+          "maximum_fps": 3.6830357142857144
+        },
+        {
+          "machine": "fsa1gt",
+          "mode": "COMPAT",
+          "fixed_pose": true,
+          "frames": 244,
+          "elapsed_ticks": 2684,
+          "fps": 5.454545454545454,
+          "minimum_fps": 5.454545454545454,
+          "maximum_fps": 5.454545454545454
+        }
+      ]
+    },
+    {
+      "stage": "ABC",
+      "rom_sha256": "563d9650c86aa363bbce226ea223f683159c5c34f52ff1d56e241dee7996de66",
+      "demo_rom_sha256": "23f104204a45689aebc12df16d8f3b9bd9c70099cc1bc0eb1c3c5885c9da1737",
+      "samples": [
+        {
+          "machine": "cbios",
+          "cpu": "Z80",
+          "mode": "FULL",
+          "fixed_pose": false,
+          "repeat": 0,
+          "frames": 118,
+          "elapsed_ticks": 893,
+          "fps": 7.928331466965285
+        },
+        {
+          "machine": "cbios",
+          "cpu": "Z80",
+          "mode": "FULL",
+          "fixed_pose": false,
+          "repeat": 1,
+          "frames": 120,
+          "elapsed_ticks": 901,
+          "fps": 7.991120976692564
+        },
+        {
+          "machine": "cbios",
+          "cpu": "Z80",
+          "mode": "FULL",
+          "fixed_pose": false,
+          "repeat": 2,
+          "frames": 119,
+          "elapsed_ticks": 898,
+          "fps": 7.951002227171492
+        },
+        {
+          "machine": "cbios",
+          "cpu": "Z80",
+          "mode": "FAST",
+          "fixed_pose": false,
+          "repeat": 0,
+          "frames": 119,
+          "elapsed_ticks": 899,
+          "fps": 7.9421579532814235
+        },
+        {
+          "machine": "cbios",
+          "cpu": "Z80",
+          "mode": "FAST",
+          "fixed_pose": false,
+          "repeat": 1,
+          "frames": 121,
+          "elapsed_ticks": 904,
+          "fps": 8.030973451327434
+        },
+        {
+          "machine": "cbios",
+          "cpu": "Z80",
+          "mode": "FAST",
+          "fixed_pose": false,
+          "repeat": 2,
+          "frames": 119,
+          "elapsed_ticks": 893,
+          "fps": 7.995520716685331
+        },
+        {
+          "machine": "cbios",
+          "cpu": "Z80",
+          "mode": "COMPAT",
+          "fixed_pose": false,
+          "repeat": 0,
+          "frames": 53,
+          "elapsed_ticks": 893,
+          "fps": 3.561030235162374
+        },
+        {
+          "machine": "cbios",
+          "cpu": "Z80",
+          "mode": "COMPAT",
+          "fixed_pose": false,
+          "repeat": 1,
+          "frames": 53,
+          "elapsed_ticks": 895,
+          "fps": 3.553072625698324
+        },
+        {
+          "machine": "cbios",
+          "cpu": "Z80",
+          "mode": "COMPAT",
+          "fixed_pose": false,
+          "repeat": 2,
+          "frames": 54,
+          "elapsed_ticks": 911,
+          "fps": 3.556531284302964
+        },
+        {
+          "machine": "cbios",
+          "cpu": "Z80",
+          "mode": "FULL",
+          "fixed_pose": true,
+          "repeat": 0,
+          "frames": 180,
+          "elapsed_ticks": 900,
+          "fps": 12.0
+        },
+        {
+          "machine": "cbios",
+          "cpu": "Z80",
+          "mode": "FULL",
+          "fixed_pose": true,
+          "repeat": 1,
+          "frames": 180,
+          "elapsed_ticks": 900,
+          "fps": 12.0
+        },
+        {
+          "machine": "cbios",
+          "cpu": "Z80",
+          "mode": "FULL",
+          "fixed_pose": true,
+          "repeat": 2,
+          "frames": 179,
+          "elapsed_ticks": 895,
+          "fps": 12.0
+        },
+        {
+          "machine": "cbios",
+          "cpu": "Z80",
+          "mode": "FAST",
+          "fixed_pose": true,
+          "repeat": 0,
+          "frames": 180,
+          "elapsed_ticks": 900,
+          "fps": 12.0
+        },
+        {
+          "machine": "cbios",
+          "cpu": "Z80",
+          "mode": "FAST",
+          "fixed_pose": true,
+          "repeat": 1,
+          "frames": 179,
+          "elapsed_ticks": 895,
+          "fps": 12.0
+        },
+        {
+          "machine": "cbios",
+          "cpu": "Z80",
+          "mode": "FAST",
+          "fixed_pose": true,
+          "repeat": 2,
+          "frames": 180,
+          "elapsed_ticks": 900,
+          "fps": 12.0
+        },
+        {
+          "machine": "cbios",
+          "cpu": "Z80",
+          "mode": "COMPAT",
+          "fixed_pose": true,
+          "repeat": 0,
+          "frames": 81,
+          "elapsed_ticks": 891,
+          "fps": 5.454545454545454
+        },
+        {
+          "machine": "cbios",
+          "cpu": "Z80",
+          "mode": "COMPAT",
+          "fixed_pose": true,
+          "repeat": 1,
+          "frames": 81,
+          "elapsed_ticks": 891,
+          "fps": 5.454545454545454
+        },
+        {
+          "machine": "cbios",
+          "cpu": "Z80",
+          "mode": "COMPAT",
+          "fixed_pose": true,
+          "repeat": 2,
+          "frames": 82,
+          "elapsed_ticks": 902,
+          "fps": 5.454545454545454
+        },
+        {
+          "machine": "fsa1gt",
+          "cpu": "R800",
+          "mode": "FULL",
+          "fixed_pose": false,
+          "repeat": 0,
+          "frames": 158,
+          "elapsed_ticks": 904,
+          "fps": 10.486725663716815
+        },
+        {
+          "machine": "fsa1gt",
+          "cpu": "R800",
+          "mode": "FULL",
+          "fixed_pose": false,
+          "repeat": 1,
+          "frames": 157,
+          "elapsed_ticks": 894,
+          "fps": 10.536912751677852
+        },
+        {
+          "machine": "fsa1gt",
+          "cpu": "R800",
+          "mode": "FULL",
+          "fixed_pose": false,
+          "repeat": 2,
+          "frames": 157,
+          "elapsed_ticks": 898,
+          "fps": 10.489977728285078
+        },
+        {
+          "machine": "fsa1gt",
+          "cpu": "R800",
+          "mode": "FAST",
+          "fixed_pose": false,
+          "repeat": 0,
+          "frames": 157,
+          "elapsed_ticks": 896,
+          "fps": 10.513392857142858
+        },
+        {
+          "machine": "fsa1gt",
+          "cpu": "R800",
+          "mode": "FAST",
+          "fixed_pose": false,
+          "repeat": 1,
+          "frames": 157,
+          "elapsed_ticks": 896,
+          "fps": 10.513392857142858
+        },
+        {
+          "machine": "fsa1gt",
+          "cpu": "R800",
+          "mode": "FAST",
+          "fixed_pose": false,
+          "repeat": 2,
+          "frames": 158,
+          "elapsed_ticks": 899,
+          "fps": 10.545050055617352
+        },
+        {
+          "machine": "fsa1gt",
+          "cpu": "R800",
+          "mode": "COMPAT",
+          "fixed_pose": false,
+          "repeat": 0,
+          "frames": 60,
+          "elapsed_ticks": 902,
+          "fps": 3.991130820399113
+        },
+        {
+          "machine": "fsa1gt",
+          "cpu": "R800",
+          "mode": "COMPAT",
+          "fixed_pose": false,
+          "repeat": 1,
+          "frames": 59,
+          "elapsed_ticks": 899,
+          "fps": 3.9377085650723025
+        },
+        {
+          "machine": "fsa1gt",
+          "cpu": "R800",
+          "mode": "COMPAT",
+          "fixed_pose": false,
+          "repeat": 2,
+          "frames": 59,
+          "elapsed_ticks": 903,
+          "fps": 3.920265780730897
+        },
+        {
+          "machine": "fsa1gt",
+          "cpu": "R800",
+          "mode": "FULL",
+          "fixed_pose": true,
+          "repeat": 0,
+          "frames": 225,
+          "elapsed_ticks": 900,
+          "fps": 15.0
+        },
+        {
+          "machine": "fsa1gt",
+          "cpu": "R800",
+          "mode": "FULL",
+          "fixed_pose": true,
+          "repeat": 1,
+          "frames": 224,
+          "elapsed_ticks": 896,
+          "fps": 15.0
+        },
+        {
+          "machine": "fsa1gt",
+          "cpu": "R800",
+          "mode": "FULL",
+          "fixed_pose": true,
+          "repeat": 2,
+          "frames": 225,
+          "elapsed_ticks": 900,
+          "fps": 15.0
+        },
+        {
+          "machine": "fsa1gt",
+          "cpu": "R800",
+          "mode": "FAST",
+          "fixed_pose": true,
+          "repeat": 0,
+          "frames": 225,
+          "elapsed_ticks": 900,
+          "fps": 15.0
+        },
+        {
+          "machine": "fsa1gt",
+          "cpu": "R800",
+          "mode": "FAST",
+          "fixed_pose": true,
+          "repeat": 1,
+          "frames": 225,
+          "elapsed_ticks": 900,
+          "fps": 15.0
+        },
+        {
+          "machine": "fsa1gt",
+          "cpu": "R800",
+          "mode": "FAST",
+          "fixed_pose": true,
+          "repeat": 2,
+          "frames": 224,
+          "elapsed_ticks": 896,
+          "fps": 15.0
+        },
+        {
+          "machine": "fsa1gt",
+          "cpu": "R800",
+          "mode": "COMPAT",
+          "fixed_pose": true,
+          "repeat": 0,
+          "frames": 90,
+          "elapsed_ticks": 900,
+          "fps": 6.0
+        },
+        {
+          "machine": "fsa1gt",
+          "cpu": "R800",
+          "mode": "COMPAT",
+          "fixed_pose": true,
+          "repeat": 1,
+          "frames": 90,
+          "elapsed_ticks": 900,
+          "fps": 6.0
+        },
+        {
+          "machine": "fsa1gt",
+          "cpu": "R800",
+          "mode": "COMPAT",
+          "fixed_pose": true,
+          "repeat": 2,
+          "frames": 90,
+          "elapsed_ticks": 900,
+          "fps": 6.0
+        }
+      ],
+      "summary": [
+        {
+          "machine": "cbios",
+          "mode": "FULL",
+          "fixed_pose": false,
+          "frames": 357,
+          "elapsed_ticks": 2692,
+          "fps": 7.956909361069837,
+          "minimum_fps": 7.928331466965285,
+          "maximum_fps": 7.991120976692564
+        },
+        {
+          "machine": "cbios",
+          "mode": "FULL",
+          "fixed_pose": true,
+          "frames": 539,
+          "elapsed_ticks": 2695,
+          "fps": 12.0,
+          "minimum_fps": 12.0,
+          "maximum_fps": 12.0
+        },
+        {
+          "machine": "cbios",
+          "mode": "FAST",
+          "fixed_pose": false,
+          "frames": 359,
+          "elapsed_ticks": 2696,
+          "fps": 7.989614243323442,
+          "minimum_fps": 7.9421579532814235,
+          "maximum_fps": 8.030973451327434
+        },
+        {
+          "machine": "cbios",
+          "mode": "FAST",
+          "fixed_pose": true,
+          "frames": 539,
+          "elapsed_ticks": 2695,
+          "fps": 12.0,
+          "minimum_fps": 12.0,
+          "maximum_fps": 12.0
+        },
+        {
+          "machine": "cbios",
+          "mode": "COMPAT",
+          "fixed_pose": false,
+          "frames": 160,
+          "elapsed_ticks": 2699,
+          "fps": 3.556872915894776,
+          "minimum_fps": 3.553072625698324,
+          "maximum_fps": 3.561030235162374
+        },
+        {
+          "machine": "cbios",
+          "mode": "COMPAT",
+          "fixed_pose": true,
+          "frames": 244,
+          "elapsed_ticks": 2684,
+          "fps": 5.454545454545454,
+          "minimum_fps": 5.454545454545454,
+          "maximum_fps": 5.454545454545454
+        },
+        {
+          "machine": "fsa1gt",
+          "mode": "FULL",
+          "fixed_pose": false,
+          "frames": 472,
+          "elapsed_ticks": 2696,
+          "fps": 10.504451038575668,
+          "minimum_fps": 10.486725663716815,
+          "maximum_fps": 10.536912751677852
+        },
+        {
+          "machine": "fsa1gt",
+          "mode": "FULL",
+          "fixed_pose": true,
+          "frames": 674,
+          "elapsed_ticks": 2696,
+          "fps": 15.0,
+          "minimum_fps": 15.0,
+          "maximum_fps": 15.0
+        },
+        {
+          "machine": "fsa1gt",
+          "mode": "FAST",
+          "fixed_pose": false,
+          "frames": 472,
+          "elapsed_ticks": 2691,
+          "fps": 10.52396878483835,
+          "minimum_fps": 10.513392857142858,
+          "maximum_fps": 10.545050055617352
+        },
+        {
+          "machine": "fsa1gt",
+          "mode": "FAST",
+          "fixed_pose": true,
+          "frames": 674,
+          "elapsed_ticks": 2696,
+          "fps": 15.0,
+          "minimum_fps": 15.0,
+          "maximum_fps": 15.0
+        },
+        {
+          "machine": "fsa1gt",
+          "mode": "COMPAT",
+          "fixed_pose": false,
+          "frames": 178,
+          "elapsed_ticks": 2704,
+          "fps": 3.9497041420118344,
+          "minimum_fps": 3.920265780730897,
+          "maximum_fps": 3.991130820399113
+        },
+        {
+          "machine": "fsa1gt",
+          "mode": "COMPAT",
+          "fixed_pose": true,
+          "frames": 270,
+          "elapsed_ticks": 2700,
+          "fps": 6.0,
+          "minimum_fps": 6.0,
+          "maximum_fps": 6.0
+        }
+      ]
+    },
+    {
+      "stage": "ABCD",
+      "rom_sha256": "a7ae9ae3f3cd0e058c3503dcba140fc69517412bdc445035b0369fb3cc4543e2",
+      "demo_rom_sha256": "f57f8a8a9f659eeeffa6276cece61f19791601ce4a7b0bb0f7a9bac9f163201a",
+      "samples": [
+        {
+          "machine": "cbios",
+          "cpu": "Z80",
+          "mode": "FULL",
+          "fixed_pose": false,
+          "repeat": 0,
+          "frames": 125,
+          "elapsed_ticks": 901,
+          "fps": 8.32408435072142
+        },
+        {
+          "machine": "cbios",
+          "cpu": "Z80",
+          "mode": "FULL",
+          "fixed_pose": false,
+          "repeat": 1,
+          "frames": 124,
+          "elapsed_ticks": 899,
+          "fps": 8.275862068965518
+        },
+        {
+          "machine": "cbios",
+          "cpu": "Z80",
+          "mode": "FULL",
+          "fixed_pose": false,
+          "repeat": 2,
+          "frames": 125,
+          "elapsed_ticks": 902,
+          "fps": 8.314855875831485
+        },
+        {
+          "machine": "cbios",
+          "cpu": "Z80",
+          "mode": "FAST",
+          "fixed_pose": false,
+          "repeat": 0,
+          "frames": 124,
+          "elapsed_ticks": 898,
+          "fps": 8.285077951002227
+        },
+        {
+          "machine": "cbios",
+          "cpu": "Z80",
+          "mode": "FAST",
+          "fixed_pose": false,
+          "repeat": 1,
+          "frames": 125,
+          "elapsed_ticks": 901,
+          "fps": 8.32408435072142
+        },
+        {
+          "machine": "cbios",
+          "cpu": "Z80",
+          "mode": "FAST",
+          "fixed_pose": false,
+          "repeat": 2,
+          "frames": 125,
+          "elapsed_ticks": 901,
+          "fps": 8.32408435072142
+        },
+        {
+          "machine": "cbios",
+          "cpu": "Z80",
+          "mode": "COMPAT",
+          "fixed_pose": false,
+          "repeat": 0,
+          "frames": 54,
+          "elapsed_ticks": 898,
+          "fps": 3.6080178173719375
+        },
+        {
+          "machine": "cbios",
+          "cpu": "Z80",
+          "mode": "COMPAT",
+          "fixed_pose": false,
+          "repeat": 1,
+          "frames": 54,
+          "elapsed_ticks": 897,
+          "fps": 3.612040133779264
+        },
+        {
+          "machine": "cbios",
+          "cpu": "Z80",
+          "mode": "COMPAT",
+          "fixed_pose": false,
+          "repeat": 2,
+          "frames": 54,
+          "elapsed_ticks": 905,
+          "fps": 3.5801104972375692
+        },
+        {
+          "machine": "cbios",
+          "cpu": "Z80",
+          "mode": "FULL",
+          "fixed_pose": true,
+          "repeat": 0,
+          "frames": 180,
+          "elapsed_ticks": 900,
+          "fps": 12.0
+        },
+        {
+          "machine": "cbios",
+          "cpu": "Z80",
+          "mode": "FULL",
+          "fixed_pose": true,
+          "repeat": 1,
+          "frames": 179,
+          "elapsed_ticks": 895,
+          "fps": 12.0
+        },
+        {
+          "machine": "cbios",
+          "cpu": "Z80",
+          "mode": "FULL",
+          "fixed_pose": true,
+          "repeat": 2,
+          "frames": 180,
+          "elapsed_ticks": 900,
+          "fps": 12.0
+        },
+        {
+          "machine": "cbios",
+          "cpu": "Z80",
+          "mode": "FAST",
+          "fixed_pose": true,
+          "repeat": 0,
+          "frames": 180,
+          "elapsed_ticks": 900,
+          "fps": 12.0
+        },
+        {
+          "machine": "cbios",
+          "cpu": "Z80",
+          "mode": "FAST",
+          "fixed_pose": true,
+          "repeat": 1,
+          "frames": 179,
+          "elapsed_ticks": 895,
+          "fps": 12.0
+        },
+        {
+          "machine": "cbios",
+          "cpu": "Z80",
+          "mode": "FAST",
+          "fixed_pose": true,
+          "repeat": 2,
+          "frames": 180,
+          "elapsed_ticks": 900,
+          "fps": 12.0
+        },
+        {
+          "machine": "cbios",
+          "cpu": "Z80",
+          "mode": "COMPAT",
+          "fixed_pose": true,
+          "repeat": 0,
+          "frames": 82,
+          "elapsed_ticks": 902,
+          "fps": 5.454545454545454
+        },
+        {
+          "machine": "cbios",
+          "cpu": "Z80",
+          "mode": "COMPAT",
+          "fixed_pose": true,
+          "repeat": 1,
+          "frames": 81,
+          "elapsed_ticks": 891,
+          "fps": 5.454545454545454
+        },
+        {
+          "machine": "cbios",
+          "cpu": "Z80",
+          "mode": "COMPAT",
+          "fixed_pose": true,
+          "repeat": 2,
+          "frames": 81,
+          "elapsed_ticks": 891,
+          "fps": 5.454545454545454
+        },
+        {
+          "machine": "fsa1gt",
+          "cpu": "R800",
+          "mode": "FULL",
+          "fixed_pose": false,
+          "repeat": 0,
+          "frames": 162,
+          "elapsed_ticks": 902,
+          "fps": 10.776053215077605
+        },
+        {
+          "machine": "fsa1gt",
+          "cpu": "R800",
+          "mode": "FULL",
+          "fixed_pose": false,
+          "repeat": 1,
+          "frames": 160,
+          "elapsed_ticks": 893,
+          "fps": 10.750279955207168
+        },
+        {
+          "machine": "fsa1gt",
+          "cpu": "R800",
+          "mode": "FULL",
+          "fixed_pose": false,
+          "repeat": 2,
+          "frames": 163,
+          "elapsed_ticks": 900,
+          "fps": 10.866666666666667
+        },
+        {
+          "machine": "fsa1gt",
+          "cpu": "R800",
+          "mode": "FAST",
+          "fixed_pose": false,
+          "repeat": 0,
+          "frames": 163,
+          "elapsed_ticks": 899,
+          "fps": 10.878754171301447
+        },
+        {
+          "machine": "fsa1gt",
+          "cpu": "R800",
+          "mode": "FAST",
+          "fixed_pose": false,
+          "repeat": 1,
+          "frames": 162,
+          "elapsed_ticks": 896,
+          "fps": 10.848214285714286
+        },
+        {
+          "machine": "fsa1gt",
+          "cpu": "R800",
+          "mode": "FAST",
+          "fixed_pose": false,
+          "repeat": 2,
+          "frames": 163,
+          "elapsed_ticks": 899,
+          "fps": 10.878754171301447
+        },
+        {
+          "machine": "fsa1gt",
+          "cpu": "R800",
+          "mode": "COMPAT",
+          "fixed_pose": false,
+          "repeat": 0,
+          "frames": 60,
+          "elapsed_ticks": 897,
+          "fps": 4.013377926421405
+        },
+        {
+          "machine": "fsa1gt",
+          "cpu": "R800",
+          "mode": "COMPAT",
+          "fixed_pose": false,
+          "repeat": 1,
+          "frames": 60,
+          "elapsed_ticks": 897,
+          "fps": 4.013377926421405
+        },
+        {
+          "machine": "fsa1gt",
+          "cpu": "R800",
+          "mode": "COMPAT",
+          "fixed_pose": false,
+          "repeat": 2,
+          "frames": 60,
+          "elapsed_ticks": 899,
+          "fps": 4.004449388209121
+        },
+        {
+          "machine": "fsa1gt",
+          "cpu": "R800",
+          "mode": "FULL",
+          "fixed_pose": true,
+          "repeat": 0,
+          "frames": 225,
+          "elapsed_ticks": 900,
+          "fps": 15.0
+        },
+        {
+          "machine": "fsa1gt",
+          "cpu": "R800",
+          "mode": "FULL",
+          "fixed_pose": true,
+          "repeat": 1,
+          "frames": 224,
+          "elapsed_ticks": 896,
+          "fps": 15.0
+        },
+        {
+          "machine": "fsa1gt",
+          "cpu": "R800",
+          "mode": "FULL",
+          "fixed_pose": true,
+          "repeat": 2,
+          "frames": 225,
+          "elapsed_ticks": 900,
+          "fps": 15.0
+        },
+        {
+          "machine": "fsa1gt",
+          "cpu": "R800",
+          "mode": "FAST",
+          "fixed_pose": true,
+          "repeat": 0,
+          "frames": 225,
+          "elapsed_ticks": 900,
+          "fps": 15.0
+        },
+        {
+          "machine": "fsa1gt",
+          "cpu": "R800",
+          "mode": "FAST",
+          "fixed_pose": true,
+          "repeat": 1,
+          "frames": 225,
+          "elapsed_ticks": 900,
+          "fps": 15.0
+        },
+        {
+          "machine": "fsa1gt",
+          "cpu": "R800",
+          "mode": "FAST",
+          "fixed_pose": true,
+          "repeat": 2,
+          "frames": 224,
+          "elapsed_ticks": 896,
+          "fps": 15.0
+        },
+        {
+          "machine": "fsa1gt",
+          "cpu": "R800",
+          "mode": "COMPAT",
+          "fixed_pose": true,
+          "repeat": 0,
+          "frames": 90,
+          "elapsed_ticks": 900,
+          "fps": 6.0
+        },
+        {
+          "machine": "fsa1gt",
+          "cpu": "R800",
+          "mode": "COMPAT",
+          "fixed_pose": true,
+          "repeat": 1,
+          "frames": 90,
+          "elapsed_ticks": 900,
+          "fps": 6.0
+        },
+        {
+          "machine": "fsa1gt",
+          "cpu": "R800",
+          "mode": "COMPAT",
+          "fixed_pose": true,
+          "repeat": 2,
+          "frames": 90,
+          "elapsed_ticks": 900,
+          "fps": 6.0
+        }
+      ],
+      "summary": [
+        {
+          "machine": "cbios",
+          "mode": "FULL",
+          "fixed_pose": false,
+          "frames": 374,
+          "elapsed_ticks": 2702,
+          "fps": 8.304959289415248,
+          "minimum_fps": 8.275862068965518,
+          "maximum_fps": 8.32408435072142
+        },
+        {
+          "machine": "cbios",
+          "mode": "FULL",
+          "fixed_pose": true,
+          "frames": 539,
+          "elapsed_ticks": 2695,
+          "fps": 12.0,
+          "minimum_fps": 12.0,
+          "maximum_fps": 12.0
+        },
+        {
+          "machine": "cbios",
+          "mode": "FAST",
+          "fixed_pose": false,
+          "frames": 374,
+          "elapsed_ticks": 2700,
+          "fps": 8.311111111111112,
+          "minimum_fps": 8.285077951002227,
+          "maximum_fps": 8.32408435072142
+        },
+        {
+          "machine": "cbios",
+          "mode": "FAST",
+          "fixed_pose": true,
+          "frames": 539,
+          "elapsed_ticks": 2695,
+          "fps": 12.0,
+          "minimum_fps": 12.0,
+          "maximum_fps": 12.0
+        },
+        {
+          "machine": "cbios",
+          "mode": "COMPAT",
+          "fixed_pose": false,
+          "frames": 162,
+          "elapsed_ticks": 2700,
+          "fps": 3.6,
+          "minimum_fps": 3.5801104972375692,
+          "maximum_fps": 3.612040133779264
+        },
+        {
+          "machine": "cbios",
+          "mode": "COMPAT",
+          "fixed_pose": true,
+          "frames": 244,
+          "elapsed_ticks": 2684,
+          "fps": 5.454545454545454,
+          "minimum_fps": 5.454545454545454,
+          "maximum_fps": 5.454545454545454
+        },
+        {
+          "machine": "fsa1gt",
+          "mode": "FULL",
+          "fixed_pose": false,
+          "frames": 485,
+          "elapsed_ticks": 2695,
+          "fps": 10.797773654916512,
+          "minimum_fps": 10.750279955207168,
+          "maximum_fps": 10.866666666666667
+        },
+        {
+          "machine": "fsa1gt",
+          "mode": "FULL",
+          "fixed_pose": true,
+          "frames": 674,
+          "elapsed_ticks": 2696,
+          "fps": 15.0,
+          "minimum_fps": 15.0,
+          "maximum_fps": 15.0
+        },
+        {
+          "machine": "fsa1gt",
+          "mode": "FAST",
+          "fixed_pose": false,
+          "frames": 488,
+          "elapsed_ticks": 2694,
+          "fps": 10.868596881959911,
+          "minimum_fps": 10.848214285714286,
+          "maximum_fps": 10.878754171301447
+        },
+        {
+          "machine": "fsa1gt",
+          "mode": "FAST",
+          "fixed_pose": true,
+          "frames": 674,
+          "elapsed_ticks": 2696,
+          "fps": 15.0,
+          "minimum_fps": 15.0,
+          "maximum_fps": 15.0
+        },
+        {
+          "machine": "fsa1gt",
+          "mode": "COMPAT",
+          "fixed_pose": false,
+          "frames": 180,
+          "elapsed_ticks": 2693,
+          "fps": 4.010397326401782,
+          "minimum_fps": 4.004449388209121,
+          "maximum_fps": 4.013377926421405
+        },
+        {
+          "machine": "fsa1gt",
+          "mode": "COMPAT",
+          "fixed_pose": true,
+          "frames": 270,
+          "elapsed_ticks": 2700,
+          "fps": 6.0,
+          "minimum_fps": 6.0,
+          "maximum_fps": 6.0
+        }
+      ]
+    },
+    {
+      "stage": "ABCDE",
+      "rom_sha256": "ce1504f2798d97ff56638db7f90ca72c79cdd8d14353d31d1ed97b61c39cc427",
+      "demo_rom_sha256": "5f9577cf30c8dedbcf2ceffc70077beeabe002771726a7d944b6655d5bca8021",
+      "samples": [
+        {
+          "machine": "cbios",
+          "cpu": "Z80",
+          "mode": "FULL",
+          "fixed_pose": false,
+          "repeat": 0,
+          "frames": 150,
+          "elapsed_ticks": 899,
+          "fps": 10.011123470522802
+        },
+        {
+          "machine": "cbios",
+          "cpu": "Z80",
+          "mode": "FULL",
+          "fixed_pose": false,
+          "repeat": 1,
+          "frames": 151,
+          "elapsed_ticks": 899,
+          "fps": 10.077864293659621
+        },
+        {
+          "machine": "cbios",
+          "cpu": "Z80",
+          "mode": "FULL",
+          "fixed_pose": false,
+          "repeat": 2,
+          "frames": 152,
+          "elapsed_ticks": 901,
+          "fps": 10.122086570477247
+        },
+        {
+          "machine": "cbios",
+          "cpu": "Z80",
+          "mode": "FAST",
+          "fixed_pose": false,
+          "repeat": 0,
+          "frames": 151,
+          "elapsed_ticks": 901,
+          "fps": 10.055493895671477
+        },
+        {
+          "machine": "cbios",
+          "cpu": "Z80",
+          "mode": "FAST",
+          "fixed_pose": false,
+          "repeat": 1,
+          "frames": 151,
+          "elapsed_ticks": 898,
+          "fps": 10.089086859688196
+        },
+        {
+          "machine": "cbios",
+          "cpu": "Z80",
+          "mode": "FAST",
+          "fixed_pose": false,
+          "repeat": 2,
+          "frames": 151,
+          "elapsed_ticks": 901,
+          "fps": 10.055493895671477
+        },
+        {
+          "machine": "cbios",
+          "cpu": "Z80",
+          "mode": "COMPAT",
+          "fixed_pose": false,
+          "repeat": 0,
+          "frames": 58,
+          "elapsed_ticks": 896,
+          "fps": 3.8839285714285716
+        },
+        {
+          "machine": "cbios",
+          "cpu": "Z80",
+          "mode": "COMPAT",
+          "fixed_pose": false,
+          "repeat": 1,
+          "frames": 58,
+          "elapsed_ticks": 897,
+          "fps": 3.879598662207358
+        },
+        {
+          "machine": "cbios",
+          "cpu": "Z80",
+          "mode": "COMPAT",
+          "fixed_pose": false,
+          "repeat": 2,
+          "frames": 57,
+          "elapsed_ticks": 890,
+          "fps": 3.842696629213483
+        },
+        {
+          "machine": "cbios",
+          "cpu": "Z80",
+          "mode": "FULL",
+          "fixed_pose": true,
+          "repeat": 0,
+          "frames": 195,
+          "elapsed_ticks": 899,
+          "fps": 13.014460511679644
+        },
+        {
+          "machine": "cbios",
+          "cpu": "Z80",
+          "mode": "FULL",
+          "fixed_pose": true,
+          "repeat": 1,
+          "frames": 195,
+          "elapsed_ticks": 900,
+          "fps": 13.0
+        },
+        {
+          "machine": "cbios",
+          "cpu": "Z80",
+          "mode": "FULL",
+          "fixed_pose": true,
+          "repeat": 2,
+          "frames": 195,
+          "elapsed_ticks": 900,
+          "fps": 13.0
+        },
+        {
+          "machine": "cbios",
+          "cpu": "Z80",
+          "mode": "FAST",
+          "fixed_pose": true,
+          "repeat": 0,
+          "frames": 195,
+          "elapsed_ticks": 900,
+          "fps": 13.0
+        },
+        {
+          "machine": "cbios",
+          "cpu": "Z80",
+          "mode": "FAST",
+          "fixed_pose": true,
+          "repeat": 1,
+          "frames": 195,
+          "elapsed_ticks": 900,
+          "fps": 13.0
+        },
+        {
+          "machine": "cbios",
+          "cpu": "Z80",
+          "mode": "FAST",
+          "fixed_pose": true,
+          "repeat": 2,
+          "frames": 194,
+          "elapsed_ticks": 895,
+          "fps": 13.005586592178771
+        },
+        {
+          "machine": "cbios",
+          "cpu": "Z80",
+          "mode": "COMPAT",
+          "fixed_pose": true,
+          "repeat": 0,
+          "frames": 88,
+          "elapsed_ticks": 894,
+          "fps": 5.906040268456376
+        },
+        {
+          "machine": "cbios",
+          "cpu": "Z80",
+          "mode": "COMPAT",
+          "fixed_pose": true,
+          "repeat": 1,
+          "frames": 89,
+          "elapsed_ticks": 904,
+          "fps": 5.907079646017699
+        },
+        {
+          "machine": "cbios",
+          "cpu": "Z80",
+          "mode": "COMPAT",
+          "fixed_pose": true,
+          "repeat": 2,
+          "frames": 88,
+          "elapsed_ticks": 895,
+          "fps": 5.899441340782123
+        },
+        {
+          "machine": "fsa1gt",
+          "cpu": "R800",
+          "mode": "FULL",
+          "fixed_pose": false,
+          "repeat": 0,
+          "frames": 185,
+          "elapsed_ticks": 903,
+          "fps": 12.29235880398671
+        },
+        {
+          "machine": "fsa1gt",
+          "cpu": "R800",
+          "mode": "FULL",
+          "fixed_pose": false,
+          "repeat": 1,
+          "frames": 184,
+          "elapsed_ticks": 895,
+          "fps": 12.335195530726256
+        },
+        {
+          "machine": "fsa1gt",
+          "cpu": "R800",
+          "mode": "FULL",
+          "fixed_pose": false,
+          "repeat": 2,
+          "frames": 184,
+          "elapsed_ticks": 897,
+          "fps": 12.307692307692308
+        },
+        {
+          "machine": "fsa1gt",
+          "cpu": "R800",
+          "mode": "FAST",
+          "fixed_pose": false,
+          "repeat": 0,
+          "frames": 185,
+          "elapsed_ticks": 899,
+          "fps": 12.347052280311457
+        },
+        {
+          "machine": "fsa1gt",
+          "cpu": "R800",
+          "mode": "FAST",
+          "fixed_pose": false,
+          "repeat": 1,
+          "frames": 185,
+          "elapsed_ticks": 901,
+          "fps": 12.319644839067703
+        },
+        {
+          "machine": "fsa1gt",
+          "cpu": "R800",
+          "mode": "FAST",
+          "fixed_pose": false,
+          "repeat": 2,
+          "frames": 184,
+          "elapsed_ticks": 899,
+          "fps": 12.280311457174639
+        },
+        {
+          "machine": "fsa1gt",
+          "cpu": "R800",
+          "mode": "COMPAT",
+          "fixed_pose": false,
+          "repeat": 0,
+          "frames": 62,
+          "elapsed_ticks": 907,
+          "fps": 4.1014332965821385
+        },
+        {
+          "machine": "fsa1gt",
+          "cpu": "R800",
+          "mode": "COMPAT",
+          "fixed_pose": false,
+          "repeat": 1,
+          "frames": 61,
+          "elapsed_ticks": 894,
+          "fps": 4.093959731543624
+        },
+        {
+          "machine": "fsa1gt",
+          "cpu": "R800",
+          "mode": "COMPAT",
+          "fixed_pose": false,
+          "repeat": 2,
+          "frames": 61,
+          "elapsed_ticks": 896,
+          "fps": 4.084821428571429
+        },
+        {
+          "machine": "fsa1gt",
+          "cpu": "R800",
+          "mode": "FULL",
+          "fixed_pose": true,
+          "repeat": 0,
+          "frames": 300,
+          "elapsed_ticks": 900,
+          "fps": 20.0
+        },
+        {
+          "machine": "fsa1gt",
+          "cpu": "R800",
+          "mode": "FULL",
+          "fixed_pose": true,
+          "repeat": 1,
+          "frames": 299,
+          "elapsed_ticks": 897,
+          "fps": 20.0
+        },
+        {
+          "machine": "fsa1gt",
+          "cpu": "R800",
+          "mode": "FULL",
+          "fixed_pose": true,
+          "repeat": 2,
+          "frames": 300,
+          "elapsed_ticks": 900,
+          "fps": 20.0
+        },
+        {
+          "machine": "fsa1gt",
+          "cpu": "R800",
+          "mode": "FAST",
+          "fixed_pose": true,
+          "repeat": 0,
+          "frames": 300,
+          "elapsed_ticks": 900,
+          "fps": 20.0
+        },
+        {
+          "machine": "fsa1gt",
+          "cpu": "R800",
+          "mode": "FAST",
+          "fixed_pose": true,
+          "repeat": 1,
+          "frames": 299,
+          "elapsed_ticks": 897,
+          "fps": 20.0
+        },
+        {
+          "machine": "fsa1gt",
+          "cpu": "R800",
+          "mode": "FAST",
+          "fixed_pose": true,
+          "repeat": 2,
+          "frames": 300,
+          "elapsed_ticks": 900,
+          "fps": 20.0
+        },
+        {
+          "machine": "fsa1gt",
+          "cpu": "R800",
+          "mode": "COMPAT",
+          "fixed_pose": true,
+          "repeat": 0,
+          "frames": 97,
+          "elapsed_ticks": 895,
+          "fps": 6.5027932960893855
+        },
+        {
+          "machine": "fsa1gt",
+          "cpu": "R800",
+          "mode": "COMPAT",
+          "fixed_pose": true,
+          "repeat": 1,
+          "frames": 98,
+          "elapsed_ticks": 904,
+          "fps": 6.504424778761062
+        },
+        {
+          "machine": "fsa1gt",
+          "cpu": "R800",
+          "mode": "COMPAT",
+          "fixed_pose": true,
+          "repeat": 2,
+          "frames": 98,
+          "elapsed_ticks": 904,
+          "fps": 6.504424778761062
+        }
+      ],
+      "summary": [
+        {
+          "machine": "cbios",
+          "mode": "FULL",
+          "fixed_pose": false,
+          "frames": 453,
+          "elapsed_ticks": 2699,
+          "fps": 10.070396443127084,
+          "minimum_fps": 10.011123470522802,
+          "maximum_fps": 10.122086570477247
+        },
+        {
+          "machine": "cbios",
+          "mode": "FULL",
+          "fixed_pose": true,
+          "frames": 585,
+          "elapsed_ticks": 2699,
+          "fps": 13.004816598740273,
+          "minimum_fps": 13.0,
+          "maximum_fps": 13.014460511679644
+        },
+        {
+          "machine": "cbios",
+          "mode": "FAST",
+          "fixed_pose": false,
+          "frames": 453,
+          "elapsed_ticks": 2700,
+          "fps": 10.066666666666666,
+          "minimum_fps": 10.055493895671477,
+          "maximum_fps": 10.089086859688196
+        },
+        {
+          "machine": "cbios",
+          "mode": "FAST",
+          "fixed_pose": true,
+          "frames": 584,
+          "elapsed_ticks": 2695,
+          "fps": 13.001855287569573,
+          "minimum_fps": 13.0,
+          "maximum_fps": 13.005586592178771
+        },
+        {
+          "machine": "cbios",
+          "mode": "COMPAT",
+          "fixed_pose": false,
+          "frames": 173,
+          "elapsed_ticks": 2683,
+          "fps": 3.868803578084234,
+          "minimum_fps": 3.842696629213483,
+          "maximum_fps": 3.8839285714285716
+        },
+        {
+          "machine": "cbios",
+          "mode": "COMPAT",
+          "fixed_pose": true,
+          "frames": 265,
+          "elapsed_ticks": 2693,
+          "fps": 5.904196063869291,
+          "minimum_fps": 5.899441340782123,
+          "maximum_fps": 5.907079646017699
+        },
+        {
+          "machine": "fsa1gt",
+          "mode": "FULL",
+          "fixed_pose": false,
+          "frames": 553,
+          "elapsed_ticks": 2695,
+          "fps": 12.311688311688311,
+          "minimum_fps": 12.29235880398671,
+          "maximum_fps": 12.335195530726256
+        },
+        {
+          "machine": "fsa1gt",
+          "mode": "FULL",
+          "fixed_pose": true,
+          "frames": 899,
+          "elapsed_ticks": 2697,
+          "fps": 20.0,
+          "minimum_fps": 20.0,
+          "maximum_fps": 20.0
+        },
+        {
+          "machine": "fsa1gt",
+          "mode": "FAST",
+          "fixed_pose": false,
+          "frames": 554,
+          "elapsed_ticks": 2699,
+          "fps": 12.315672471285662,
+          "minimum_fps": 12.280311457174639,
+          "maximum_fps": 12.347052280311457
+        },
+        {
+          "machine": "fsa1gt",
+          "mode": "FAST",
+          "fixed_pose": true,
+          "frames": 899,
+          "elapsed_ticks": 2697,
+          "fps": 20.0,
+          "minimum_fps": 20.0,
+          "maximum_fps": 20.0
+        },
+        {
+          "machine": "fsa1gt",
+          "mode": "COMPAT",
+          "fixed_pose": false,
+          "frames": 184,
+          "elapsed_ticks": 2697,
+          "fps": 4.093437152391546,
+          "minimum_fps": 4.084821428571429,
+          "maximum_fps": 4.1014332965821385
+        },
+        {
+          "machine": "fsa1gt",
+          "mode": "COMPAT",
+          "fixed_pose": true,
+          "frames": 293,
+          "elapsed_ticks": 2703,
+          "fps": 6.503884572697003,
+          "minimum_fps": 6.5027932960893855,
+          "maximum_fps": 6.504424778761062
+        }
+      ]
+    }
+  ],
+  "bit_exact_rom_comparison": {
+    "mesh_frames": 128,
+    "water_phases": 256,
+    "pass": true,
+    "method": "Decode the freshly rebuilt baseline ROM and the final optimized ROM independently; compare all raster bytes and expand all merged runs to the original records."
+  }
+}

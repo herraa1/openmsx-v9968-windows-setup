@@ -5,6 +5,9 @@
 #include "platform.h"
 __sfr __at (0xaa) keyboard_select;
 __sfr __at (0xa9) keyboard_input;
+/* C-level operation: BIOS_CHGCPU(0x81). CHGCPU takes A, not a C stack
+   argument; preserve IX/IY around the BIOS call. There is no portable C
+   call with this register contract, so this small ABI bridge stays assembly. */
 void platform_r800_rom(void) __naked {
 #asm
     push ix

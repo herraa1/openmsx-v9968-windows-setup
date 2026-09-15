@@ -3,3 +3,6 @@ test-output/
 user/
 *.log
 assets/megarom-data.bin
+
+# Isolated C-reference build output
+build-c/

@@ -4,6 +4,15 @@
 
 # Changelog
 
+## 0.7.1 — 2026-09-15
+
+- Animated FULL mode improved from **6.43 to 10.07 FPS on Z80** and **8.24 to 12.31 FPS on R800** in the pinned openMSX fork (three 15-second measurement windows). Animation timing is unchanged.
+- Reuse the clean scene image, restore only the previous mesh bounds, merge water transfers and mesh rectangles, and reduce command-stream overhead.
+- Include the optimized comparison ROM, updated preview GIFs, and detailed Japanese/English PDF documentation. Historical benchmark ROMs and their measurements remain separate.
+- Add a selectable C reference implementation for mesh, glow and water command streams, with pixel comparisons against assembly on both machine configurations.
+- Update PROBE to Revision 2 for more detailed LRMM and R20 compatibility diagnostics. FPGA retesting remains pending.
+- Strengthen water-data bounds/coverage checks and ensure capture tests inspect only the current run.
+
 ## 0.7.0
 
 - Add a sixth tech demo scene, 6 AFTERGLOW: a decaying trail that turns into recursive framebuffer feedback, built from VRAM-to-VRAM commands alone.

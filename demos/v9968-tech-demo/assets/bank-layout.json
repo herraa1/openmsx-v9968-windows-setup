@@ -52,7 +52,7 @@
   },
   "IDENTITY": {
     "bank": 54,
-    "bytes": 384,
+    "bytes": 6,
     "stride": 0
   },
   "HUDLINE": {
@@ -75,6 +75,16 @@
     "allocated_bytes": 966656,
     "mapper": "ASCII16",
     "rom_banks": 64,
+    "water_mean_runs": 53.1015625,
+    "water_min_runs": 47,
+    "water_max_runs": 59,
+    "water_mean_shifted_runs": 35.0859375,
+    "water_mean_commands": 123.2734375,
+    "mesh_bbox_mean_area": 15175.6796875,
+    "mesh_restore_mean_area": 15298.140625,
+    "mesh_mean_rectangles": 223.8359375,
+    "mesh_min_rectangles": 107,
+    "mesh_max_rectangles": 328,
     "mesh_max_spans": 354,
     "mesh_mean_spans": 257.140625
   }

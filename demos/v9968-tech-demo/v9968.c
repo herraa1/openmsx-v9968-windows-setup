@@ -14,6 +14,11 @@ __sfr __at (0x9b) vcmd;
 volatile u16 ticks;
 u8 back_page;
 static u8 irq_live;
+static u8 mesh_destination_page;
+static u8 water_cached_valid,water_cached_frame;
+static u8 water_bbox_x,water_bbox_y,water_bbox_h;
+static u16 water_bbox_w;
+void water_work_reset(void){water_cached_valid=0;}
 #ifdef SCENE3_BENCHMARK
 u8 benchmark_vdp, benchmark_mode;
 #endif
@@ -21,6 +26,8 @@ u8 benchmark_vdp, benchmark_mode;
 static u8 diag_index;
 #endif
 
+/* DI/EI protect the two-write control latch. Restore this module's IRQ
+   policy (irq_live), not an unconditional EI or a portable C substitute. */
 void reg(u8 r,u8 v){
 #asm
     di
@@ -33,6 +40,8 @@ void reg(u8 r,u8 v){
     }
 }
 void clock_poll(void){}
+/* C meaning: return ticks. Keep a single LD HL,(ticks): a C bytewise load
+   could tear across the ISR increment. No portable C-only atomic equivalent. */
 u16 clock_ticks(void) __naked {
 #asm
     ld hl,(_ticks)
@@ -41,6 +50,10 @@ u16 clock_ticks(void) __naked {
 }
 /* Private IM2 vector table at D000-D100, trampoline D1D1-D1D3.
    Cartridge RAM map is checked in build/test; no BIOS ISR runs in graphics. */
+/* Body in C notation: select_status(0); acknowledge_vblank();
+   select_status(2); ++ticks; music_tick();
+   Entry/exit must save both register sets plus IX/IY and use EI/RETI.
+   A normal C function cannot replace this interrupt ABI. */
 void frame_irq(void) __naked {
 #asm
     push af
@@ -101,12 +114,34 @@ void timer_start(void){
     ei
 #endasm
 }
+static void command_fault(void){
+    *((volatile u8*)0xcf06)=1;video_stop();reg(7,15);
+    for(;;){inp(0xa9);}
+}
+/* Hot-loop wait: AF/BC clobbered, DE/HL preserved. Same bounded 65535-poll
+   watchdog and fault marker as the C path; IRQ remains enabled throughout.
+   ISR always restores S#2, never R#17 or the mapper. */
+/* C reference: wait_cmd() below. Identical poll budget and fault action;
+   elapsed timeout and instruction/IRQ timing deliberately differ. */
+static void stream_wait(void) __naked {
+#asm
+    ld bc,65535
+mc_wait_busy:
+    in a,(099h)
+    and 1
+    ret z
+    dec bc
+    ld a,b
+    or c
+    jr nz,mc_wait_busy
+    jp _command_fault
+#endasm
+}
 static void wait_cmd(void){
     u16 budget=65535;
     while(inp(0x99)&1){
         if(--budget==0){
-            *((volatile u8*)0xcf06)=1;video_stop();reg(7,15);
-            for(;;){inp(0xa9);}
+            command_fault();
         }
     }
 }
@@ -349,6 +384,7 @@ void panel_draw(const int *p){
 /* Reload page-2 textures after it has served as the water capture buffer. */
 void textures_load(void){
     u16 i;u8 y;const u8 *p;
+    water_work_reset();
     wait_cmd();bank_select(BANK_ORB);p=(const u8*)0x8000;
     reg(14,4);
     for(y=0;y<80;++y){
@@ -361,7 +397,22 @@ void textures_load(void){
 }
 /* Precomputed LMMV packets. Only the destination-page byte is substituted.
    Called after timer_start; the ISR does not modify R17 or switch ROM banks. */
-void stream_spans(const u8 *packets) __z88dk_fastcall __naked {
+/* C reference for mc_span_next: count is little-endian; each record has
+   11 bytes for R36..R46. Replace only DY high (byte 3). Zero count is a no-op.
+   This is compiled and tested, not disabled sample code. */
+#ifdef V9968_SCENE3_C_STREAM
+static void stream_mesh_page(const u8 *packets) __z88dk_fastcall {
+    u16 count=(u16)packets[0]|((u16)packets[1]<<8);
+    u8 i;
+    packets+=2;
+    while(count--){
+        wait_cmd();reg(17,36);
+        for(i=0;i<11;++i)vcmd=(i==3)?mesh_destination_page:packets[i];
+        packets+=11;
+    }
+}
+#else
+static void stream_mesh_page(const u8 *packets) __z88dk_fastcall __naked {
 #asm
     ld e,(hl)
     inc hl
@@ -371,11 +422,11 @@ mc_span_next:
     ld a,d
     or e
     ret z
-    push de
-    push hl
-    call _wait_cmd
-    pop hl
-    pop de
+#endasm
+#asm
+    call _stream_wait
+#endasm
+#asm
     di
     ld a,36
     out (099h),a
@@ -384,7 +435,7 @@ mc_span_next:
     ei
     ld bc,0039bh
     otir
-    ld a,(_back_page)
+    ld a,(_mesh_destination_page)
     out (09bh),a
     inc hl
     ld b,7
@@ -393,10 +444,55 @@ mc_span_next:
     jr mc_span_next
 #endasm
 }
+#endif
+void stream_spans(const u8 *packets){
+    mesh_destination_page=back_page;stream_mesh_page(packets);
+}
+/* Page 2 is clean background plus one cached mesh, never HUD or distortion.
+   HMMM works in packed bytes: expand the exact bbox to even X boundaries. */
+static void water_restore(u8 x,u8 y,u16 w,u8 h){
+    wait_cmd();reg(17,32);
+    vcmd=x;vcmd=0;vcmd=y;vcmd=3;
+    vcmd=x;vcmd=0;vcmd=y;vcmd=2;
+    vcmd=w;vcmd=w>>8;vcmd=h;vcmd=0;vcmd=0;vcmd=0;vcmd=0xd0;
+}
+void water_prepare(u8 frame){
+    const u8 *p,*bbox;
+    /* zsdcc drops an in-place mask on the argument at -SO3; assign the masked result to a separate variable.
+       volatile is not the workaround; retained to preserve the measured ROM. */
+    volatile u8 pose=frame&(FRAMES_MESH-1);
+    if(water_cached_valid && pose==water_cached_frame)return;
+    if(water_cached_valid)water_restore(water_bbox_x,water_bbox_y,water_bbox_w,water_bbox_h);
+    else water_restore(0,0,256,192);
+    p=bank_record(BANK_MESH,pose,4096);bbox=p+MESH_BBOX_OFFSET;
+    water_bbox_x=bbox[0]&254;water_bbox_y=bbox[1];water_bbox_h=bbox[3];
+    water_bbox_w=(((u16)bbox[0]+bbox[2]+1)&0xfffe)-water_bbox_x;
+    mesh_destination_page=2;stream_mesh_page(p);
+    water_cached_frame=pose;water_cached_valid=1;
+}
 /* Same packet walk as stream_spans, but the colour byte in each packet is
    replaced by 15 instead of being sent through. That flattens the shaded solid
    to one level for the Scene 6 opening without a second copy of the half-
    megabyte span data, and leaves Scene 1 reading the same packets unchanged. */
+/* C reference for mc_glow_next: same 11-byte walk; substitute destination
+   page at byte 3 and colour 15 at byte 8. Width/height and command are retained. */
+#ifdef V9968_SCENE3_C_STREAM
+void stream_spans_glow(const u8 *packets) __z88dk_fastcall {
+    u16 count=(u16)packets[0]|((u16)packets[1]<<8);
+    u8 i,value;
+    packets+=2;
+    while(count--){
+        wait_cmd();reg(17,36);
+        for(i=0;i<11;++i){
+            value=packets[i];
+            if(i==3)value=back_page;
+            if(i==8)value=15;
+            vcmd=value;
+        }
+        packets+=11;
+    }
+}
+#else
 void stream_spans_glow(const u8 *packets) __z88dk_fastcall __naked {
 #asm
     ld e,(hl)
@@ -434,6 +530,7 @@ mc_glow_next:
     jr mc_glow_next
 #endasm
 }
+#endif
 void floor_draw(const int *p){
     u8 y;
     for(y=64;y<176;y+=2){
@@ -498,15 +595,10 @@ void feedback_capture(void){
     vcmd=0;vcmd=0;vcmd=0;vcmd=2;
     vcmd=0;vcmd=1;vcmd=192;vcmd=0;vcmd=0;vcmd=0;vcmd=0xd0;
 }
-void water_capture(void){
-    wait_cmd();reg(17,32);
-    vcmd=0;vcmd=0;vcmd=0;vcmd=back_page;
-    vcmd=0;vcmd=0;vcmd=0;vcmd=2;
-    vcmd=0;vcmd=1;vcmd=192;vcmd=0;vcmd=0;vcmd=0;vcmd=0xd0;
-}
 /* Page 3 is never displayed; only replace it at scene boundaries. */
 void background_load(u8 bank){
     u16 i;const u8 *p;
+    water_work_reset();
     wait_cmd();reg(14,6);vram_begin(0);
     bank_select(bank);p=(const u8*)0x8000;
     for(i=0;i<16384;++i)vdata=*p++;
@@ -533,15 +625,16 @@ void header_shadow(u8 scene){
     vcmd=0;vcmd=0;vcmd=0x98;
 }
 /* Source page 2 is immutable during all bands: no cumulative feedback. */
+#ifdef V9968_SCENE3_C_STREAM
 void water_draw(const u8 *p){
-    u8 y,sx,dx,w,sy,i,edge;
-    rect(0,0,256,192,0);
-    for(y=0;y<192;y+=2){
-        sx=*p++;dx=*p++;w=*p++;sy=*p++;
+    u8 y=0,sx,dx,w,sy,i,edge,h,count=*p++;
+    /* Every destination pixel is overwritten, including both repeated edges. */
+    while(count--){
+        sx=*p++;dx=*p++;w=*p++;sy=*p++;h=*p++;
         wait_cmd();reg(17,32);
         vcmd=sx;vcmd=0;vcmd=sy;vcmd=2;
         vcmd=dx;vcmd=0;vcmd=y;vcmd=back_page;
-        vcmd=w;vcmd=(w==0);vcmd=2;vcmd=0;vcmd=0;vcmd=0;vcmd=0xd0;
+        vcmd=w;vcmd=(w==0);vcmd=h;vcmd=0;vcmd=0;vcmd=0;vcmd=0xd0;
         if(sx || dx){
             /* Repeat the outermost pixel, not the outermost two-pixel pair. */
             edge=dx?0:255;
@@ -549,21 +642,113 @@ void water_draw(const u8 *p){
                 wait_cmd();reg(17,32);
                 vcmd=edge;vcmd=0;vcmd=sy;vcmd=2;
                 vcmd=dx?i:254+i;vcmd=0;vcmd=y;vcmd=back_page;
-                vcmd=1;vcmd=0;vcmd=2;vcmd=0;vcmd=0;vcmd=0;vcmd=0x90;
+                vcmd=1;vcmd=0;vcmd=h;vcmd=0;vcmd=0;vcmd=0;vcmd=0x90;
             }
         }
+        y+=h;
     }
 }
 
-
-
-
-
-
-
-
-
-
+#else
+/* Compact record: count, then sx/dx/width/sy/height per run. Width zero
+   encodes 256. The buffer is private to the main loop; IRQ never touches it.
+   Source page 2 remains immutable. All command registers are written only
+   after CE clears, and R#17 selection is atomic. */
+/* Label mapping to the C water_draw above:
+   mc_water_next/width = decode one run; mc_water_right/edge = repeat the
+   outermost pixel twice; mc_water_advance = y += h; mc_water_submit =
+   wait_cmd(); reg(17,32); output the 15 R32..R46 bytes. */
+static u8 water_packet[15]={0,0,0,2,0,0,0,0,0,0,0,0,0,0,0xd0};
+static void stream_water_runs(const u8 *p) __z88dk_fastcall __naked {
+#asm
+    ld a,(_back_page)
+    ld (_water_packet+7),a
+    ld d,(hl)
+    inc hl
+    ld e,0
+mc_water_next:
+    ld a,d
+    or a
+    ret z
+    ld a,(hl)
+    ld (_water_packet),a
+    inc hl
+    ld a,(hl)
+    ld (_water_packet+4),a
+    inc hl
+    ld a,(hl)
+    ld (_water_packet+8),a
+    inc hl
+    or a
+    ld a,0
+    jr nz,mc_water_width
+    inc a
+mc_water_width:
+    ld (_water_packet+9),a
+    ld a,(hl)
+    ld (_water_packet+2),a
+    inc hl
+    ld a,(hl)
+    ld (_water_packet+10),a
+    inc hl
+    ld a,e
+    ld (_water_packet+6),a
+    ld a,0d0h
+    ld (_water_packet+14),a
+    call mc_water_submit
+    ld a,(_water_packet)
+    ld b,a
+    ld a,(_water_packet+4)
+    or b
+    jr z,mc_water_advance
+    ld a,(_water_packet+4)
+    or a
+    jr z,mc_water_right
+    xor a
+    ld (_water_packet),a
+    ld (_water_packet+4),a
+    jr mc_water_edge
+mc_water_right:
+    ld a,255
+    ld (_water_packet),a
+    dec a
+    ld (_water_packet+4),a
+mc_water_edge:
+    ld a,1
+    ld (_water_packet+8),a
+    xor a
+    ld (_water_packet+9),a
+    ld a,090h
+    ld (_water_packet+14),a
+    call mc_water_submit
+    ld a,(_water_packet+4)
+    inc a
+    ld (_water_packet+4),a
+    call mc_water_submit
+mc_water_advance:
+    ld a,(_water_packet+10)
+    add a,e
+    ld e,a
+    dec d
+    jp mc_water_next
+mc_water_submit:
+    call _stream_wait
+    di
+    ld a,32
+    out (099h),a
+    ld a,091h
+    out (099h),a
+    ei
+    push hl
+    ld hl,_water_packet
+    ld bc,00f9bh
+    otir
+    pop hl
+    ret
+#endasm
+}
+void water_draw(const u8 *p){stream_water_runs(p);}
+#endif
 
 #ifdef SCENE3_BENCHMARK
 /* Toggle only at an idle command engine, blanking during palette replacement.

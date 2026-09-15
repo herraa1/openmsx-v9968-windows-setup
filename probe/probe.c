@@ -15,7 +15,8 @@
 
    Fresh cartridge startup only: experiments overwrite scratch VRAM and VDP
    registers, then initialize a new text screen. This is not state preserving.
-   Requested addresses are >=0x8000; an unknown implementation can alias them.
+   Low VRAM is deliberately overwritten before INITXT. Unknown implementations
+   may alias any test address.
    No disk, flash programming or mapper writes are performed by this code. */
 #include <stdio.h>
 #include <stdlib.h>
@@ -30,6 +31,8 @@ static unsigned char step0, step1;           /* where the source reading starts 
 static unsigned int  ce_rise, ce_fall;       /* how long the engine takes to react */
 static unsigned char vram[4];                /* aliasing above 32 KiB */
 static unsigned char fault, ce_seen, selected_r20, lrmm_available;
+static unsigned char ext_id, raw_off, raw_on, busy_off, busy_on;
+static unsigned char last_ce, high_ok, high_raw;
 #define START_POLLS 1024
 #define IDLE_POLLS 20000
 
@@ -54,6 +57,7 @@ static void finish_command(void) {
     unsigned int spin;
     wr(15, 2);
     for (spin=0; spin<START_POLLS; ++spin) if (inp(CTRL)&1) break;
+    last_ce=(spin<START_POLLS);
     idle();
 }
 static void poke(unsigned int addr, unsigned char page, unsigned char v) {
@@ -89,7 +93,8 @@ static void lrmm(unsigned int sx, unsigned int sy,
     wrw(32, sx); wrw(34, sy); wrw(36, dx); wrw(38, dy);
     wrw(40, w); wrw(42, h);
     wrw(47, vx); wrw(49, vy);
-    wrw(51, 0); wrw(53, 256); wrw(55, 255); wrw(57, 1023);
+    wrw(51, 0); wrw(53, sy<256?0:256);
+    wrw(55, 255); wrw(57, sy<256?191:1023);
     wr(44, 0); wr(45, 0); wr(46, cmd);
     finish_command();
 }
@@ -100,26 +105,33 @@ static void lrmm(unsigned int sx, unsigned int sy,
    gates the extended commands on it; an FPGA map documented by HRA! uses the
    same bit for flat interlace and runs the commands without it. Running one
    1:1 transfer under each setting tells them apart without assuming either. */
+/* Read all 16 copied pixels, not only the first byte. */
+static unsigned char transfer_trial(unsigned int y, unsigned char *raw) {
+    unsigned char row, col, ok=1, page=(unsigned char)(y>>7);
+    unsigned int addr=(y&127)*128;
+    box(0,y,8,2,15); box(16,y,8,2,0);
+    if (fault) return 0;
+    for(row=0;row<2;++row) for(col=0;col<4;++col)
+        if(peek(addr+row*128+col,page)!=0xff ||
+           peek(addr+row*128+8+col,page)!=0) { fault=2; return 0; }
+    lrmm(0,y,16,y,8,2,256,0,0x38);
+    *raw=peek(addr+8,page);
+    if(fault) return 0;
+    for(row=0;row<2;++row) for(col=0;col<4;++col)
+        if(peek(addr+row*128+8+col,page)!=0xff) ok=0;
+    return ok;
+}
 static void probe_r20_bit5(void) {
-    wr(20, 0x11);
-    box(0, 256, 8, 2, 15);
-    box(16, 256, 8, 2, 0);
-    if (fault) return;
-    if (peek(0,2)!=0xff || peek(8,2)!=0) { fault=2; return; }
-    lrmm(0, 256, 16, 256, 8, 2, 256, 0, 0x38);
-    b5_off = (peek(0x0008, 2) == 0xff);
-    if (fault) return;
-
-    wr(20, 0x31);
-    box(0, 256, 8, 2, 15);
-    box(16, 256, 8, 2, 0);
-    if (fault) return;
-    if (peek(0,2)!=0xff || peek(8,2)!=0) { fault=2; return; }
-    lrmm(0, 256, 16, 256, 8, 2, 256, 0, 0x38);
-    b5_on = (peek(0x0008, 2) == 0xff);
-    selected_r20=b5_off?0x11:0x31;
+    /* Same low-page rectangle and clip window as the working demo. */
+    wr(20,0x11); b5_off=transfer_trial(0,&raw_off); busy_off=last_ce;
+    if(fault) return;
+    wr(20,0x31); b5_on=transfer_trial(0,&raw_on); busy_on=last_ce;
+    if(fault) return;
     lrmm_available=b5_off||b5_on;
-    wr(20, selected_r20); /* do not leave FPGA flat-interlace enabled */
+    selected_r20=b5_off?0x11:(b5_on?0x31:0);
+    /* NONE is not permission to leave flat interlace set. */
+    wr(20,selected_r20?selected_r20:0x11);
+    if(lrmm_available) high_ok=transfer_trial(256,&high_raw);
 }
 
 /* The low nibble of the command byte is the logical operation. Operation 8 is
@@ -202,19 +214,22 @@ int main(void) {
 #endasm
     wr(21, 0x3a); wr(15, 1);
     id = (inp(CTRL) >> 1) & 31;
-    wr(15, 0); wr(21, 0x3b);
+    wr(15, 0); /* Keep R21=0x3a throughout extended experiments. */
 
     if (id == 3) {
         wr(0, 6); wr(1, 0); wr(2, 31); wr(7, 0);
         wr(8,10); wr(9,0); wr(23,0); wr(25,0); wr(26,0); wr(27,0);
-        probe_r20_bit5();
-        if (!fault && lrmm_available) probe_transparency();
-        if (!fault && lrmm_available) probe_step();
+        wr(15,1); ext_id=(inp(CTRL)>>1)&31; wr(15,0);
+        if(ext_id!=3) fault=3;
+        if(!fault) probe_r20_bit5();
+        if (!fault && lrmm_available && high_ok) probe_transparency();
+        if (!fault && lrmm_available && high_ok) probe_step();
         if (!fault) probe_timing();
         if (!fault) probe_vram();
         wr(46,0); wr(20,0); wr(14,0); wr(15,0); wr(16,0); wr(17,0);
         wr(21,0x3b); /* standard palette protocol before BIOS initialization */
     }
+    if(id!=3) wr(21,0x3b);
 #asm
     call 0x006c                              ; INITXT, back to the text screen
     ei
@@ -226,15 +241,21 @@ int main(void) {
     puts("V9968 / C ROM TEST");
     printf("VDP ID=%u\n", (unsigned int)id);
     puts(id == 3 ? "V9968 IDENTIFIED" : "V9968 NOT IDENTIFIED");
+    puts("PROBE REV=2");
     if (id != 3) {
         puts("NO FURTHER TESTS RUN");
     } else if (fault) {
         printf("PROBE ERROR code=%u\n", (unsigned int)fault);
         puts("PARTIAL RESULTS DISCARDED");
     } else {
+        printf("EXTID=%u R21=3a\n",(unsigned int)ext_id);
         printf("R20B5  off=%u on=%u\n", (unsigned int)b5_off, (unsigned int)b5_on);
-        printf("R20SEL value=%02x\n", (unsigned int)selected_r20);
-        if (lrmm_available) {
+        if(lrmm_available) printf("R20SEL value=%02x\n", (unsigned int)selected_r20);
+        else puts("R20SEL NONE");
+        printf("LRRAW off=%02x on=%02x\n",(unsigned int)raw_off,(unsigned int)raw_on);
+        printf("LRCE off=%u on=%u\n",(unsigned int)busy_off,(unsigned int)busy_on);
+        if(lrmm_available) printf("LRHIGH ok=%u raw=%02x\n",(unsigned int)high_ok,(unsigned int)high_raw);
+        if (lrmm_available && high_ok) {
         printf("LRMMOP timp=%02x imp=%02x\n",
                (unsigned int)lrmm_timp, (unsigned int)lrmm_imp);
         printf("LRMMST d0=%u d1=%u\n", (unsigned int)step0, (unsigned int)step1);

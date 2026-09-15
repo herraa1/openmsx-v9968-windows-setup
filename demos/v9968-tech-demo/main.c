@@ -106,8 +106,8 @@ int main(void){
         if(scene==0)mesh((u8)(now>>1));
         if(scene==1){floor_draw((const int*)bank_record(BANK_FLOOR,(now>>1)&(FRAMES_FLOOR-1),512));core(angle);}
         if(scene==2){
-            /* Same pose clock as Scene 1; capture clean geometry every frame. */
-            background();mesh((u8)(now>>1));water_capture();
+            /* Same pose clock; page 2 caches clean geometry until the pose changes. */
+            water_prepare((u8)(now>>1));
             /* Q8 phase: 522/256 steps/tick, ~3.003 rad/s at 60 Hz. */
             if(wave)water_draw(bank_record(BANK_WATER,(u8)(((unsigned long)now*522)>>8),512));
             else{bank_select(BANK_IDENTITY);water_draw((const u8*)0x8000);}

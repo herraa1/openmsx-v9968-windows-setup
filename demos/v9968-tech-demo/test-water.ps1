@@ -1,8 +1,9 @@
-﻿param([Parameter(Mandatory=$true)][string]$Runtime)
+﻿param([Parameter(Mandatory=$true)][string]$Runtime,[switch]$CStream)
+$buildDir=if($CStream){'build-c'}else{'build'}
 $ErrorActionPreference='Stop'
 $Runtime=[IO.Path]::GetFullPath($Runtime)
 $cfg=Get-Content "$Runtime/config.json" -Raw|ConvertFrom-Json
-$map=Get-Content "$PSScriptRoot/build/V9968-TECH-DEMO.map" -Raw
+$map=Get-Content "$PSScriptRoot/$buildDir/V9968-TECH-DEMO.map" -Raw
 function Symbol($name){
  $m=[regex]::Match($map,'(?m)^'+[regex]::Escape($name)+'\s*=\s*\$([0-9A-Fa-f]+)')
  if(!$m.Success){throw "Missing map symbol $name"};[Convert]::ToInt32($m.Groups[1].Value,16)
@@ -15,7 +16,7 @@ $results=@()
 try{
  foreach($mode in @('identity','wave')){
   $work=Join-Path $out $mode;[IO.Directory]::CreateDirectory($work)|Out-Null
-  Copy-Item "$PSScriptRoot/build/V9968-TECH-DEMO.rom" "$work/V9968-TECH-DEMO.rom"
+  Copy-Item "$PSScriptRoot/$buildDir/V9968-TECH-DEMO.rom" "$work/V9968-TECH-DEMO.rom"
   $env:OPENMSX_HOME="$work/user";$env:OPENMSX_USER_DATA="$work/user/share";$env:OPENMSX_SYSTEM_DATA="$Runtime/emulator/share"
   if($cfg.mode -eq 'fsa1gt'){[IO.Directory]::CreateDirectory("$work/user/share/systemroms")|Out-Null;Copy-Item "$Runtime/bios/*.rom" "$work/user/share/systemroms"}
   $tcl=@'
@@ -25,7 +26,7 @@ set sound_driver null
 proc dump {file space address length} {
  set f [open $file wb];puts -nonewline $f [debug read_block $space $address $length];close $f
 }
-# Pause the CPU in test RAM while queued VDP work completes. Interrupts remain live.
+# Park the CPU while VDP work completes. Save IFF so resume cannot interrupt an ISR.
 debug set_bp -once @ENTRY@ {} {
  debug write memory 0xcf80 0xc3
  debug write memory 0xcf81 0x80
@@ -37,6 +38,7 @@ debug set_bp -once @ENTRY@ {} {
   debug write memory $argument_address 0
   debug write memory [expr {$argument_address+1}] 0x80
  }
+ set park_iff [reg IFF];reg IFF 0
  reg PC 0xcf80
   after time 0.1 {
   if {!@IDENTITY@} {
@@ -47,7 +49,7 @@ debug set_bp -once @ENTRY@ {} {
    }
   }
   dump source.bin VRAM 65536 24576
-  dump parameters.bin memory [peek16 $argument_address] 384
+  dump parameters.bin memory [peek16 $argument_address] 512
   debug set_bp -once $return_address {} {
    reg PC 0xcf80
    after time 0.1 {
@@ -60,6 +62,7 @@ debug set_bp -once @ENTRY@ {} {
    debug cont
   }
   reg PC @ENTRY@
+  reg IFF $park_iff
  }
  debug cont
 }
@@ -73,7 +76,18 @@ after time 85 {exit 1}
   $handle=$p.Handle;if(!$p.WaitForExit(60000)){$p.Kill();throw "Water test timed out: $work"}
   if($p.ExitCode -ne 0){throw "Water test failed: $work"}
   $src=[IO.File]::ReadAllBytes("$work/source.bin");$params=[IO.File]::ReadAllBytes("$work/parameters.bin");$actual=[IO.File]::ReadAllBytes("$work/actual.bin")
-  if($src.Length -ne 24576 -or $actual.Length -ne 24576 -or $params.Length -ne 384){throw 'Incomplete capture'}
+  if($src.Length -ne 24576 -or $actual.Length -ne 24576 -or $params.Length -ne 512){throw 'Incomplete capture'}
+  # Expand independently for the original per-two-row pixel reference below.
+  $bands=New-Object 'System.Collections.Generic.List[byte]'
+  $cursor=1;$rows=0
+  for($run=0;$run -lt $params[0];$run++){
+   $sx=$params[$cursor];$dx=$params[$cursor+1];$w=$params[$cursor+2];$sy=$params[$cursor+3];$h=$params[$cursor+4];$cursor+=5
+   if($h -eq 0 -or $h%2 -or $sy+$h -gt 192 -or $rows+$h -gt 192){throw 'Invalid merged run'}
+   for($offset=0;$offset -lt $h;$offset+=2){$bands.AddRange([byte[]]@($sx,$dx,$w,($sy+$offset)))}
+   $rows+=$h
+  }
+  if($rows -ne 192){throw 'Merged runs do not cover screen'}
+  $params=$bands.ToArray()
   $expected=New-Object byte[] 24576
   for($band=0;$band -lt 96;$band++){
    $sx=[int]$params[$band*4];$dx=[int]$params[$band*4+1];$w=[int]$params[$band*4+2];$sy=[int]$params[$band*4+3];if($w -eq 0){$w=256}

@@ -2,13 +2,13 @@
 
 # openmsx-v9968-windows-setup
 
-V9968 対応 openMSX 派生版を Windows にセットアップする非公式の補助ツールです。バージョンは **0.7.0**。openMSX 本体や V9968 開発元の公式プロジェクトではありません。
+V9968 対応 openMSX 派生版を Windows にセットアップする非公式の補助ツールです。バージョンは **0.7.1**。openMSX 本体や V9968 開発元の公式プロジェクトではありません。
 
 V9968 は MSX 用の VDP（映像表示プロセッサー）です。派生版 openMSX は、本体内蔵の VDP を V9968 に置き換えて動作します。この補助ツールは、検証済みのバージョンをダウンロードし、ハッシュを検査し、V9968 の識別テストまで行って、**V9968 TECH DEMO がすぐ動く環境を作ります。**
 
-| VDPコマンド高速モードを使い、フレームごとのパターン更新とスクリーン変形を高速実行 |
+| Scene 3 の最適化で 8.23 → 12.33 fps（1.50倍）。openMSX・FS-A1GT / R800 / FULL で測定。上：最適化前、下：最適化後。 |
 | --- |
-| ![V9968 TECH DEMO — 水中の揺らぎ](demos/v9968-tech-demo/water-preview.gif) |
+| ![V9968 Scene 3 — 最適化前後の比較](demos/scene3-benchmark/images/optimization-comparison.gif) |
 
 [SCENE3 の速度・画質を比較するデモ](demos/scene3-benchmark/README.ja.md)では、F キーで高速化とパレットを切り替え、通常 V9958 とも比較できます。
 
@@ -22,7 +22,7 @@ V9968 は MSX 用の VDP（映像表示プロセッサー）です。派生版 o
 
 ## 最短の使い方
 
-1. [GitHub Releases](https://github.com/renatus-xxxx/openmsx-v9968-windows-setup/releases) の **Assets** から `openmsx-v9968-windows-setup-0.7.0.zip` をダウンロードし、ZIP **全体**を、OneDrive などの同期フォルダの外にある新しい書込み可能なフォルダ（例: `C:\MSX`）へ展開します。ZIP 内から直接 BAT を実行しないでください。
+1. [GitHub Releases](https://github.com/renatus-xxxx/openmsx-v9968-windows-setup/releases) の **Assets** から `openmsx-v9968-windows-setup-0.7.1.zip` をダウンロードし、ZIP **全体**を、OneDrive などの同期フォルダの外にある新しい書込み可能なフォルダ（例: `C:\MSX`）へ展開します。ZIP 内から直接 BAT を実行しないでください。
 2. `setup-cbios-v9968.bat` を実行するか、所有 BIOS フォルダを `setup-fsa1gt-v9968.bat` へドラッグします。
 3. デモを起動します。
    - FS-A1GT / R800：`launch-v9968-tech-demo-fsa1gt.bat`
